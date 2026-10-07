@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문의 관리 · 성환공구 ERP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2; --border:#DFD2B4;
+    --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --new:#A23A2E; --new-bg:#F5DAD3;
+    --progress:#946A17; --progress-bg:#F1E3C2;
+    --done:#2C6E68; --done-bg:#D9EAE7;
+    --header-row:#1E2A44; --header-text:#F6F0E4;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;padding:36px 24px 80px;}
+  .page{max-width:1000px;margin:0 auto;}
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
+  h1{font-family:"Noto Serif KR",serif;font-size:26px;font-weight:900;margin:8px 0 4px;}
+  .rule{height:4px;width:64px;background:var(--accent);border-radius:2px;margin:8px 0 24px;}
+
+  .stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px;}
+  .stat-card{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;}
+  .stat-card .num{font-family:"Noto Serif KR",serif;font-weight:900;font-size:26px;}
+  .stat-card .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+  .stat-card.new .num{color:var(--new);}
+  .stat-card.progress .num{color:var(--progress);}
+  .stat-card.done .num{color:var(--done);}
+
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface);}
+  table{width:100%;border-collapse:collapse;min-width:760px;}
+  thead th{background:var(--header-row);color:var(--header-text);text-align:left;font-size:12.5px;font-weight:700;padding:11px 14px;white-space:nowrap;}
+  tbody td{padding:12px 14px;font-size:13.5px;color:var(--ink-soft);border-top:1px solid var(--border);vertical-align:top;}
+  tbody td.name{color:var(--ink);font-weight:700;white-space:nowrap;}
+  tbody td.msg{max-width:320px;white-space:pre-wrap;}
+  tbody tr:nth-child(even){background:var(--surface-alt);}
+
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;}
+  .badge.신규{background:var(--new-bg);color:var(--new);}
+  .badge.처리중{background:var(--progress-bg);color:var(--progress);}
+  .badge.완료{background:var(--done-bg);color:var(--done);}
+
+  select.status-select{
+    font:inherit;font-size:12.5px;font-weight:700;padding:5px 8px;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--ink);cursor:pointer;
+  }
+
+  .empty,.loading,.error{padding:40px;text-align:center;color:var(--muted);font-size:14px;}
+  .error{color:var(--new);}
+
+  footer{margin-top:26px;font-size:12px;color:var(--muted);}
+  a.back{display:inline-block;margin-bottom:18px;font-size:13px;color:var(--accent);text-decoration:none;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="page">
+  <a class="back" href="erp-map.html">← ERP 지도로</a>
+  <span class="eyebrow">(주)성환공구 · 알리기</span>
+  <h1>문의 관리</h1>
+  <div class="rule"></div>
+
+  <div class="stat-row">
+    <div class="stat-card new"><div class="num" id="countNew">–</div><div class="lbl">신규</div></div>
+    <div class="stat-card progress"><div class="num" id="countProgress">–</div><div class="lbl">처리중</div></div>
+    <div class="stat-card done"><div class="num" id="countDone">–</div><div class="lbl">완료</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>접수일</th><th>이름/업체</th><th>연락처</th><th>이메일</th><th>문의 내용</th><th>상태</th></tr>
+      </thead>
+      <tbody id="rows">
+        <tr><td colspan="6" class="loading">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>홈페이지(sht09.com 또는 새 홈페이지)의 "문의하기" 양식으로 접수된 내용이 여기 자동으로 쌓입니다. 상태를 바꾸면 바로 저장됩니다.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = "https://dykljzknwcqncxusiqkf.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5a2xqemtud2NxbmN4dXNpcWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1ODM3NTEsImV4cCI6MjEwNTE1OTc1MX0.vo7fWD4xrTdZXjAG8NBUd1Dcmj7EjOLcYBPj7-ROQGM";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const rowsEl = document.getElementById("rows");
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+  }
+
+  async function loadInquiries() {
+    const { data, error } = await sb.from("inquiries").select("*").order("created_at", { ascending: false });
+
+    if (error) {
+      rowsEl.innerHTML = `<tr><td colspan="6" class="error">불러오지 못했습니다: ${error.message}</td></tr>`;
+      return;
+    }
+    if (!data || data.length === 0) {
+      rowsEl.innerHTML = `<tr><td colspan="6" class="empty">아직 들어온 문의가 없습니다.</td></tr>`;
+      document.getElementById("countNew").textContent = 0;
+      document.getElementById("countProgress").textContent = 0;
+      document.getElementById("countDone").textContent = 0;
+      return;
+    }
+
+    document.getElementById("countNew").textContent = data.filter(r => r.status === "신규").length;
+    document.getElementById("countProgress").textContent = data.filter(r => r.status === "처리중").length;
+    document.getElementById("countDone").textContent = data.filter(r => r.status === "완료").length;
+
+    rowsEl.innerHTML = "";
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${fmtDate(row.created_at)}</td>
+        <td class="name">${escapeHtml(row.name)}</td>
+        <td>${escapeHtml(row.phone || "-")}</td>
+        <td>${escapeHtml(row.email || "-")}</td>
+        <td class="msg">${escapeHtml(row.message)}</td>
+        <td></td>
+      `;
+      const statusTd = tr.querySelector("td:last-child");
+      const select = document.createElement("select");
+      select.className = "status-select";
+      ["신규", "처리중", "완료"].forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s; opt.textContent = s;
+        if (s === row.status) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener("change", async () => {
+        select.disabled = true;
+        await sb.from("inquiries").update({ status: select.value }).eq("id", row.id);
+        select.disabled = false;
+        loadInquiries();
+      });
+      statusTd.appendChild(select);
+      rowsEl.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  loadInquiries();
+</script>
+</body>
+</html>

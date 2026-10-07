@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회사 일정판</title>
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2;
+    --border:#DFD2B4; --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --header-row:#1E2A44; --header-text:#F6F0E4;
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--ink);font-family:"Malgun Gothic","Noto Sans KR",sans-serif;padding:36px 20px 60px;}
+  .page{max-width:760px;margin:0 auto;}
+  .eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--muted);}
+  h1{font-size:24px;margin:6px 0 4px;}
+  .rule{height:3px;width:64px;background:var(--accent);border-radius:2px;margin:8px 0 20px;}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+  table{width:100%;border-collapse:collapse;min-width:600px;background:var(--surface);}
+  thead th{background:var(--header-row);color:var(--header-text);text-align:left;font-size:13px;font-weight:700;padding:10px 13px;white-space:nowrap;}
+  tbody td{padding:9px 13px;font-size:13.5px;border-top:1px solid var(--border);color:var(--ink-soft);white-space:nowrap;}
+  tbody td.name{color:var(--ink);font-weight:500;white-space:normal;}
+  tbody tr:nth-child(even){background:var(--surface-alt);}
+  tbody tr.today td{font-weight:700;color:var(--ink);}
+  footer{margin-top:24px;font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="page">
+  <span class="eyebrow">(주)성환공구 · 첫 칸</span>
+  <h1>회사 일정판</h1>
+  <div class="rule"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>날짜</th><th>시간</th><th>일정 이름</th><th>어느 캘린더</th><th>장소</th></tr></thead>
+      <tbody>
+        <tr class="today"><td>9/10(목)</td><td>07:00</td><td class="name">기혁스3기2</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>10:00</td><td class="name">미지급금-동신.에이치엠티.10일자업체</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>11:00</td><td class="name">화사회 선물</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>11:00</td><td class="name">우리은행.하나은행 확인</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>14:00</td><td class="name">건강검진예약</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>14:00</td><td class="name">미수금</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>15:00</td><td class="name">추석선물</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>15:00</td><td class="name">조의금</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr class="today"><td>9/10(목)</td><td>19:00</td><td class="name">206동3,4호 친선모임</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/11(금)</td><td>09:30</td><td class="name">삼성전자as-인덕션</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/11(금)</td><td>12:10</td><td class="name">향기회 라운딩</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/12(토)</td><td>05:00</td><td class="name">벌초</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/13(일)</td><td>13:00</td><td class="name">진아생축</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/14(월)</td><td>종일</td><td class="name">진아생일</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/14(월)</td><td>11:00</td><td class="name">화상회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/15(화)</td><td>07:00</td><td class="name">화성경제인포럼</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/15(화)</td><td>17:00</td><td class="name">어울필라테스11</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/15(화)</td><td>21:00</td><td class="name">가은17(온라인)</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/16(수)</td><td>10:30</td><td class="name">향남기업인협의회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/16(수)</td><td>18:00</td><td class="name">삼백회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/17(목)</td><td>07:00</td><td class="name">기혁스3기3</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/17(목)</td><td>18:00</td><td class="name">양떼들</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/18(금)</td><td>08:00</td><td class="name">화분물주기</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/18(금)</td><td>11:00</td><td class="name">아주대75기 월례회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/19(토)</td><td>09:00</td><td class="name">어울필라테스12</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/19(토)</td><td>11:00</td><td class="name">강용원대표딸결혼</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/19(토)</td><td>11:00</td><td class="name">효원가족공원.점심</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/19(토)</td><td>17:30</td><td class="name">권태일대표따님결혼</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/21(월)</td><td>11:00</td><td class="name">경기협23기</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/22(화)</td><td>07:30</td><td class="name">화사회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/22(화)</td><td>21:00</td><td class="name">가은18(온라인)</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/23(수)</td><td>18:00</td><td class="name">삼백회</td><td>sht0993@gmail.com</td><td>-</td></tr>
+        <tr><td>9/23(수)</td><td>18:00</td><td class="name">어울필라테스13</td><td>sht0993@gmail.com</td><td>-</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>(주)성환공구 · 회사 일정판 · 2026-09-10 생성 · 구글 캘린더(sht0993@gmail.com) 연동 — "다시 채워줘"라고 하면 갱신됩니다.</footer>
+</div>
+</body>
+</html>

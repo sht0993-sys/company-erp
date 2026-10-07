@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사내메신저 · 성환공구</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2; --border:#DFD2B4;
+    --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --high:#A23A2E; --high-bg:#F5DAD3;
+    --mid:#946A17; --mid-bg:#F1E3C2;
+    --done:#2C6E68; --done-bg:#D9EAE7;
+    --side-muted:#9BA6C4; --side-line:#33436A;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 60px;}
+  .callout{background:#FBEFDD;border:1px solid #E9CE9E;border-left:4px solid var(--accent);border-radius:0;padding:12px 16px;font-size:13.5px;color:#6B4A1E;margin-bottom:14px;}
+  .callout b{color:var(--ink);}
+  .crumb{font-size:13px;color:var(--muted);margin-bottom:16px;}
+  .crumb a{color:var(--muted);text-decoration:none;}
+  .crumb a:hover{color:var(--accent);}
+  .crumb b{color:var(--ink);}
+
+  details.fold{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;}
+  details.fold summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;}
+  details.fold summary::-webkit-details-marker{display:none;}
+  details.fold summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:14px;}
+  .fold-title{font-weight:700;font-size:15px;}
+  .fold-hint{font-size:12.5px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+  .fold-hint .chev{display:inline-block;transition:transform .2s;}
+  details.fold[open] .fold-hint .chev{transform:rotate(180deg);}
+  .fold-body{padding:4px 20px 20px;border-top:1px solid var(--border);}
+  .fold-sub{font-size:13px;color:var(--muted);margin:14px 0 12px;line-height:1.6;}
+  .mm-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--bg);}
+  .mm-scroll svg{display:block;min-width:760px;width:100%;height:auto;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .chip{font-size:12.5px;background:#FBEFDD;border:1px solid #E9CE9E;color:#6B4A1E;border-radius:999px;padding:4px 12px;}
+
+  .head{background:var(--ink);color:#fff;border-radius:16px;padding:18px 22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .head h1{font-family:"Noto Serif KR",serif;font-size:22px;margin:0 0 4px;}
+  .head p{margin:0;font-size:13px;color:#C9D0E2;}
+  .head-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:#C9D0E2;}
+  .head-right select{font-family:inherit;font-size:13.5px;padding:6px 10px;border-radius:8px;border:1px solid var(--side-line);background:#141C31;color:#fff;}
+  .head-stat{background:#141C31;border:1px solid var(--accent);border-radius:10px;padding:6px 12px;color:#F2B380;font-weight:700;white-space:nowrap;}
+
+  .talk{display:grid;grid-template-columns:300px 1fr;height:600px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .list{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;}
+  .list-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+  .list-head b{font-size:14px;}
+  .list-scroll{overflow-y:auto;flex:1;}
+  .row{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--surface-alt);padding:11px 14px;cursor:pointer;font-family:inherit;color:var(--ink);}
+  .row:hover{background:var(--surface-alt);}
+  .row.on{background:#F3E7D0;}
+  .row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  .row .body{flex:1;min-width:0;}
+  .row .top{display:flex;justify-content:space-between;gap:8px;}
+  .row .name{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .time{font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .row .preview{display:block;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+  .row .sub{font-size:12px;color:var(--muted);}
+  .row.erp{background:#FBEFDD;}
+  .row.erp:hover{background:#F6E2C4;}
+  .row.erp.on{background:#F3D9B4;}
+  .badge{min-width:20px;height:20px;border-radius:999px;background:var(--high);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;flex:none;margin-top:2px;}
+  .list-label{font-size:12px;color:var(--muted);padding:12px 14px 6px;line-height:1.5;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--surface-alt);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex:none;}
+  .avatar.group{background:var(--ink);color:#fff;}
+  .avatar.bell{background:var(--accent);color:#fff;font-size:15px;}
+
+  .conv{display:flex;flex-direction:column;min-height:0;}
+  .conv-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .conv-head .title{font-size:15px;font-weight:700;}
+  .conv-head .members{font-size:12px;color:var(--muted);}
+  .back{display:none;white-space:nowrap;flex:none;font-family:inherit;background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;color:var(--ink);font-size:13px;}
+  .conv-body{flex:1;overflow-y:auto;padding:14px 16px;background:var(--bg);}
+  .conv-empty{color:var(--muted);font-size:13.5px;text-align:center;margin-top:120px;line-height:1.8;padding:0 20px;}
+  .date-sep{text-align:center;font-size:11.5px;color:var(--muted);margin:12px 0;}
+  .sys{text-align:center;font-size:12px;color:var(--ink-soft);background:var(--surface-alt);border-radius:999px;padding:4px 12px;margin:8px auto;width:fit-content;max-width:90%;}
+  .msg{display:flex;flex-direction:column;margin-bottom:8px;max-width:78%;}
+  .msg.mine{margin-left:auto;align-items:flex-end;}
+  .msg .who{font-size:12px;color:var(--ink-soft);margin-bottom:3px;font-weight:700;}
+  .line{display:flex;align-items:flex-end;gap:6px;}
+  .msg.mine .line{flex-direction:row-reverse;}
+  .bubble{background:#fff;border:1px solid var(--border);border-radius:14px;padding:8px 12px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+  .msg.mine .bubble{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .bubble.deleted{background:transparent;color:var(--muted);font-style:italic;border-style:dashed;}
+  .msg.mine .bubble.deleted{background:transparent;color:var(--muted);border-color:var(--border);}
+  .meta{display:flex;flex-direction:column;align-items:flex-end;font-size:11px;color:var(--muted);gap:1px;white-space:nowrap;}
+  .msg:not(.mine) .meta{align-items:flex-start;}
+  .unread-n{color:var(--mid);font-weight:700;}
+  .del{font-family:inherit;font-size:11px;color:var(--muted);background:none;border:none;text-decoration:underline;cursor:pointer;padding:0;}
+  .conv-input{border-top:1px solid var(--border);padding:10px 12px;background:var(--surface);}
+  .input-row{display:flex;gap:8px;align-items:flex-end;}
+  .input-row textarea{flex:1;font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;resize:none;height:44px;max-height:120px;background:#fff;color:var(--ink);}
+  .input-row textarea:focus{outline:2px solid var(--accent);outline-offset:0;}
+  .input-hint{font-size:11.5px;color:var(--muted);margin-top:5px;}
+  .err{color:var(--high);font-size:12.5px;margin-top:5px;}
+  .btn{font-family:inherit;font-size:13.5px;font-weight:700;padding:10px 16px;border-radius:9px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;white-space:nowrap;}
+  .btn.small{font-size:12.5px;padding:6px 11px;}
+  .btn.ghost{background:transparent;color:var(--ink);}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .pane{padding:18px 20px;overflow-y:auto;flex:1;}
+  .pane h3{font-size:15px;margin:0 0 6px;}
+  .pane .note{font-size:12.5px;color:var(--muted);line-height:1.7;margin:0 0 14px;}
+  .erp-group{margin-bottom:18px;}
+  .erp-group h4{font-size:13.5px;margin:0 0 8px;display:flex;align-items:center;gap:8px;}
+  .erp-item{display:block;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13.5px;}
+  .erp-item:hover{border-color:var(--accent);}
+  .erp-item small{display:block;color:var(--muted);font-size:12px;margin-top:2px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .field input[type=text]{width:100%;max-width:360px;font-family:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;}
+  .pick-group{margin-bottom:10px;}
+  .pick-group .gl{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .picks{display:flex;flex-wrap:wrap;gap:8px;}
+  .pick{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:13px;background:#fff;cursor:pointer;}
+  .pick input{margin:0;}
+  .quick-picks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+
+  footer{margin-top:22px;font-size:12px;color:var(--muted);line-height:1.8;}
+  .reset{font-family:inherit;font-size:12px;background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;}
+
+  @media (max-width:760px){
+    .wrap{padding:14px 10px 50px;}
+    .talk{grid-template-columns:1fr;height:calc(100vh - 120px);min-height:520px;}
+    .talk.conv-open .list{display:none;}
+    .talk:not(.conv-open) .conv{display:none;}
+    .back{display:inline-block;}
+    .msg{max-width:88%;}
+  }
+  @media (prefers-reduced-motion:reduce){ .fold-hint .chev{transition:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="callout">안 되는 것 · 불편한 것이 있으면 클로드에게 바로 말씀하세요 — <b>고치는 게 빠릅니다.</b></div>
+  <div class="crumb"><a href="erp-map.html">📖 ERP 지도</a> › <b>사내메신저</b></div>
+
+  <details class="fold" id="fold" open>
+    <summary>
+      <span class="fold-title">🗺️ 전체 그림 — 사내메신저가 어떻게 돌아가는가</span>
+      <span class="fold-hint"><span id="foldWord">접기</span> <span class="chev">▾</span></span>
+    </summary>
+    <div class="fold-body">
+      <p class="fold-sub">가운데에서 가지를 따라가며 보세요. 남색은 메신저의 기본 틀, 주황색은 성환공구가 정한 약속입니다. 휴대폰에서는 옆으로 밀어서 보세요.</p>
+      <div class="mm-scroll">
+        <svg viewBox="0 0 960 350" role="img" aria-labelledby="mmTitle mmDesc">
+          <title id="mmTitle">성환공구 사내메신저 구조 마인드맵</title>
+          <desc id="mmDesc">가운데 사내메신저에서 방 종류, 표 3개, 규칙 4줄, 성환공구 약속으로 가지가 뻗어 나갑니다.</desc>
+          <g fill="none" stroke-width="2">
+            <path d="M405 167 C390 167,390 78,375 78" stroke="#3B4A6B"/>
+            <path d="M405 167 C390 167,390 254,375 254" stroke="#3B4A6B"/>
+            <path d="M555 167 C570 167,570 92,585 92" stroke="#3B4A6B"/>
+            <path d="M555 167 C570 167,570 242,585 242" stroke="#C1692F"/>
+          </g>
+          <g fill="none" stroke="#8A93AB" stroke-width="1.2">
+            <path d="M235 78 C223 78,223 50,211 50"/><path d="M235 78 C223 78,223 78,211 78"/><path d="M235 78 C223 78,223 106,211 106"/>
+            <path d="M235 254 C223 254,223 226,211 226"/><path d="M235 254 C223 254,223 254,211 254"/><path d="M235 254 C223 254,223 282,211 282"/>
+            <path d="M725 92 C737 92,737 50,749 50"/><path d="M725 92 C737 92,737 78,749 78"/><path d="M725 92 C737 92,737 106,749 106"/><path d="M725 92 C737 92,737 134,749 134"/>
+          </g>
+          <g fill="none" stroke="#C1692F" stroke-width="1.2">
+            <path d="M725 242 C737 242,737 200,749 200"/><path d="M725 242 C737 242,737 228,749 228"/><path d="M725 242 C737 242,737 256,749 256"/><path d="M725 242 C737 242,737 284,749 284"/>
+          </g>
+          <rect x="405" y="137" width="150" height="60" rx="30" fill="#FFFDF8" stroke="#1E2A44" stroke-width="2.5"/>
+          <text x="480" y="162" text-anchor="middle" font-size="13" fill="#4B5670" font-family="Noto Sans KR, sans-serif">성환공구</text>
+          <text x="480" y="184" text-anchor="middle" font-size="17" font-weight="700" fill="#1E2A44" font-family="Noto Serif KR, serif">사내메신저</text>
+          <g font-family="Noto Sans KR, sans-serif" font-size="14" font-weight="700" text-anchor="middle">
+            <rect x="235" y="62" width="140" height="32" rx="16" fill="#1E2A44"/><text x="305" y="83" fill="#fff">방 종류 3</text>
+            <rect x="235" y="238" width="140" height="32" rx="16" fill="#1E2A44"/><text x="305" y="259" fill="#fff">표 3개</text>
+            <rect x="585" y="76" width="140" height="32" rx="16" fill="#1E2A44"/><text x="655" y="97" fill="#fff">규칙 4줄</text>
+            <rect x="585" y="226" width="140" height="32" rx="16" fill="#C1692F"/><text x="655" y="247" fill="#fff">성환공구 약속</text>
+          </g>
+          <g font-family="Noto Sans KR, sans-serif" font-size="13" fill="#4B5670" text-anchor="end">
+            <text x="205" y="54">1:1 대화</text>
+            <text x="205" y="82">단톡방 (전체 · 배송팀 …)</text>
+            <text x="205" y="110">ERP 알림 (결재 · 처리할 것)</text>
+            <text x="205" y="230">방</text>
+            <text x="205" y="258">방 멤버 (+ 읽은 시각)</text>
+            <text x="205" y="286">메시지</text>
+          </g>
+          <g font-family="Noto Sans KR, sans-serif" font-size="13" fill="#4B5670">
+            <text x="755" y="54">방은 첫 말을 보낼 때 생김</text>
+            <text x="755" y="82">안읽음 = 내가 읽은 뒤 온 말</text>
+            <text x="755" y="110">방 멤버만 봄 — 대표님도</text>
+            <text x="755" y="138">아무도 안 읽었을 때만 지우기</text>
+          </g>
+          <g font-family="Noto Sans KR, sans-serif" font-size="13" fill="#A0521F" font-weight="700">
+            <text x="755" y="204">기록이 회사에 남음</text>
+            <text x="755" y="232">5초마다 새로 받기</text>
+            <text x="755" y="260">기사님은 휴대폰으로</text>
+            <text x="755" y="288">결재 알림도 여기로</text>
+          </g>
+          <g font-family="Noto Sans KR, sans-serif" font-size="12.5" fill="#4B5670">
+            <rect x="330" y="318" width="14" height="14" rx="4" fill="#1E2A44"/><text x="350" y="330">메신저 기본 틀</text>
+            <rect x="480" y="318" width="14" height="14" rx="4" fill="#C1692F"/><text x="500" y="330">성환공구가 정한 약속</text>
+          </g>
+        </svg>
+      </div>
+      <div class="chips">
+        <span class="chip">내 말 옆 주황 숫자 = 아직 안 읽은 사람 수</span>
+        <span class="chip">카톡과 달리 대화 기록이 회사에 남습니다</span>
+        <span class="chip">업무 결재는 톡 말고 전자결재로</span>
+      </div>
+    </div>
+  </details>
+
+  <section class="head">
+    <div>
+      <h1>사내메신저</h1>
+      <p>직원끼리 1:1 · 단톡 대화 — 기록이 회사에 남습니다 · 5초마다 새로 받습니다</p>
+    </div>
+    <div class="head-right">
+      <label for="viewerSel">지금 접속:</label>
+      <select id="viewerSel"></select>
+      <span class="head-stat" id="headStat">안 읽음 0</span>
+    </div>
+  </section>
+
+  <div class="talk" id="talk">
+    <aside class="list">
+      <div class="list-head"><b>대화</b><button class="btn small" id="btnGroup" type="button">＋ 단톡방</button></div>
+      <div class="list-scroll" id="listScroll"></div>
+    </aside>
+    <section class="conv" id="conv" aria-live="polite"></section>
+  </div>
+
+  <footer>
+    (주)성환공구 · 사내메신저 실습판 · 전자결재와 같은 「지금 접속」 사람을 씁니다 · 이 컴퓨터의 이 브라우저에만 저장됩니다 · 이름과 [예시] 대화는 설명용입니다<br>
+    이 파일을 탭 두 개로 열어 서로 다른 사람으로 접속하면 주고받는 것을 볼 수 있습니다 · ⚠ 실습판은 「방 멤버만」을 브라우저가 지킵니다 — 직원들이 휴대폰으로 실제로 쓰려면 수파베이스(서버)에 연결해야 합니다
+    <button class="reset" id="btnReset" type="button">· 예시 대화로 되돌리기 (대표님만)</button>
+  </footer>
+</div>
+
+<script src="erp-rules.js"></script>
+<script>
+(function(){
+  var KEY = 'sht-talk-v1';
+  var APV_KEY = 'sht-approvals-v1';
+  var FOLD_KEY = 'sht-talk-fold';
+
+  var PEOPLE = [
+    {id:'ceo', name:'대표', dept:'office', acct:false},
+    {id:'chajang', name:'차장', dept:'office'},
+    {id:'acc1', name:'경리과장', dept:'accounting', acct:true},
+    {id:'acc2', name:'경리', dept:'accounting', acct:true},
+    {id:'sales1', name:'영업 1', dept:'office'},
+    {id:'sales2', name:'영업 2', dept:'office'},
+    {id:'sales3', name:'영업 3', dept:'office'},
+    {id:'sales4', name:'영업 4', dept:'office'},
+    {id:'drv1', name:'배송기사 1', dept:'delivery'},
+    {id:'drv2', name:'배송기사 2', dept:'delivery'},
+    {id:'drv3', name:'배송기사 3', dept:'delivery'},
+    {id:'drv4', name:'배송기사 4', dept:'delivery'},
+    {id:'drv5', name:'배송기사 5', dept:'delivery'}
+  ];
+  var APV_TYPES = ERP_RULES.TYPE_LABELS;
+
+  function at(mo, d, h, mi){ return new Date(2026, mo - 1, d, h, mi).getTime(); }
+
+  function seed(){
+    var all = PEOPLE.map(function(p){ return p.id; });
+    var drvTeam = ['chajang','drv1','drv2','drv3','drv4','drv5'];
+    var members = [];
+    all.forEach(function(pid){
+      var r = 0;
+      if (pid === 'chajang') r = at(9,30,17,52);
+      else if (pid === 'ceo') r = at(9,30,17,40);
+      members.push({roomId:'r_all', pid:pid, readAt:r});
+    });
+    drvTeam.forEach(function(pid){
+      var r = 0;
+      if (pid === 'chajang') r = at(10,1,8,5);
+      else if (pid === 'drv2') r = at(10,1,8,7);
+      else if (pid === 'drv4') r = at(10,1,8,12);
+      members.push({roomId:'r_drv', pid:pid, readAt:r});
+    });
+    members.push({roomId:'r_dm1', pid:'chajang', readAt:at(9,30,16,55)});
+    members.push({roomId:'r_dm1', pid:'acc1', readAt:at(9,30,16,50)});
+    return {
+      rooms:[
+        {id:'r_all', kind:'group', name:'전체', createdBy:'ceo', createdAt:at(9,30,17,30), sample:true},
+        {id:'r_drv', kind:'group', name:'배송팀', createdBy:'chajang', createdAt:at(9,30,18,0), sample:true},
+        {id:'r_dm1', kind:'dm', name:'', createdBy:'acc1', createdAt:at(9,30,16,50), sample:true}
+      ],
+      members:members,
+      msgs:[
+        {id:'m1', roomId:'r_all', from:null, text:'대표 님이 「전체」 방을 만들었습니다 · 멤버 13명', at:at(9,30,17,30)},
+        {id:'m2', roomId:'r_all', from:'ceo', text:'10월부터 연차 · 지출은 전자결재로 올려 주세요. 종이는 이번 달까지만 받습니다.', at:at(9,30,17,40)},
+        {id:'m3', roomId:'r_all', from:'chajang', text:'네, 기사님들은 휴대폰으로 올리시면 됩니다. 모르시면 저한테 물어보세요.', at:at(9,30,17,52)},
+        {id:'m4', roomId:'r_drv', from:null, text:'차장 님이 「배송팀」 방을 만들었습니다 · 멤버 6명', at:at(9,30,18,0)},
+        {id:'m5', roomId:'r_drv', from:'chajang', text:'오늘 오전 10시 배차 — A정밀 건 먼저 부탁합니다.', at:at(10,1,8,5)},
+        {id:'m6', roomId:'r_drv', from:'drv2', text:'네 확인했습니다', at:at(10,1,8,7)},
+        {id:'m7', roomId:'r_drv', from:'drv4', text:'3호차 브레이크 수리는 오늘 들어가나요?', at:at(10,1,8,12)},
+        {id:'m8', roomId:'r_dm1', from:'acc1', text:'B금형 외상 60일, 대표님 승인 나면 북청에 넣겠습니다.', at:at(9,30,16,50)},
+        {id:'m9', roomId:'r_dm1', from:'chajang', text:'네 부탁해요', at:at(9,30,16,55)}
+      ]
+    };
+  }
+
+  function load(){
+    try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.rooms && s.members && s.msgs) return s; } catch(e){}
+    return seed();
+  }
+  var S = load();
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+  // 고치기 직전에 다른 탭이 저장한 최신 대화를 다시 읽는다 — 남이 보낸 말을 덮어쓰지 않게
+  function fresh(){ S = load(); }
+  function loadApv(){ try { return JSON.parse(localStorage.getItem(APV_KEY) || 'null'); } catch(e){ return null; } }
+
+  // 「지금 접속」은 탭마다 따로(sessionStorage), 대화는 모든 탭이 같이(localStorage)
+  // 전자결재와 같은 칸(sht-viewer)을 써서, 한 탭 안에서는 결재 ↔ 밥톡을 오가도 같은 사람이다
+  // 다른 탭이나 결재 화면의 접속자는 건드리지 않는다
+  var TAB_KEY = 'sht-viewer';
+  function getViewer(){
+    try {
+      var t = sessionStorage.getItem(TAB_KEY) || sessionStorage.getItem('sht-talk-viewer');
+      if (t) return t;
+    } catch(e){}
+    return 'ceo';
+  }
+  function setViewer(id){
+    try { sessionStorage.setItem(TAB_KEY, id); } catch(e){}
+  }
+
+  var viewer = getViewer();
+  var openId = null;
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function hm(ms){ var d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function ymd(ms){ var d = new Date(ms); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+  function listTime(ms){ return ymd(ms) === ymd(Date.now()) ? hm(ms) : ymd(ms).slice(5).replace('-', '/'); }
+  function person(id){ for (var i=0;i<PEOPLE.length;i++) if (PEOPLE[i].id === id) return PEOPLE[i]; return {id:id, name:id}; }
+  function initials(name){
+    var num = name.match(/\d+/);
+    return num ? name.charAt(0) + num[0] : name.replace(/\s/g,'').slice(0, 2);
+  }
+
+  // ── 방 · 멤버 · 메시지 ─────────────────
+  function membersOf(roomId){ return S.members.filter(function(m){ return m.roomId === roomId; }); }
+  function memberRec(roomId, pid){ var ms = membersOf(roomId); for (var i=0;i<ms.length;i++) if (ms[i].pid === pid) return ms[i]; return null; }
+  function isMember(roomId, pid){ return !!memberRec(roomId, pid); }
+  function room(id){ for (var i=0;i<S.rooms.length;i++) if (S.rooms[i].id === id) return S.rooms[i]; return null; }
+  function msgsOf(roomId){ return S.msgs.filter(function(m){ return m.roomId === roomId; }).sort(function(a,b){ return a.at - b.at; }); }
+  function lastMsg(roomId){ var ms = msgsOf(roomId); return ms[ms.length - 1] || null; }
+  function myRooms(){ return S.rooms.filter(function(r){ return isMember(r.id, viewer); }); }
+  function roomTitle(r){
+    if (r.kind === 'dm') { var other = membersOf(r.id).filter(function(m){ return m.pid !== viewer; })[0]; return other ? person(other.pid).name : '(나간 사람)'; }
+    return r.name;
+  }
+  function dmWith(pid){
+    return S.rooms.filter(function(r){
+      if (r.kind !== 'dm') return false;
+      var ms = membersOf(r.id);
+      return ms.length === 2 && isMember(r.id, viewer) && isMember(r.id, pid);
+    })[0] || null;
+  }
+
+  // 안읽음 = 내 「읽은 시각」 이후에 남이 보낸 말의 수 (이 뜻 하나만)
+  function unread(roomId){
+    var me = memberRec(roomId, viewer);
+    if (!me) return 0;
+    return msgsOf(roomId).filter(function(m){ return m.from !== viewer && m.at > me.readAt; }).length;
+  }
+  function totalUnread(){ return myRooms().reduce(function(s, r){ return s + unread(r.id); }, 0); }
+  function markRead(roomId){ var me = memberRec(roomId, viewer); if (me) me.readAt = Date.now(); }
+
+  // 내 말 옆 숫자 = 이 말을 아직 안 읽은 사람 수
+  function unreadBy(m){
+    return membersOf(m.roomId).filter(function(x){ return x.pid !== m.from && x.readAt < m.at; }).length;
+  }
+  function canDelete(m){
+    return m.from === viewer && !m.deletedAt && unreadBy(m) === membersOf(m.roomId).length - 1;
+  }
+
+  // ── 전자결재 알림 (전자결재 화면과 같은 판정 — erp-rules.js 하나를 같이 쓴다) ─────────────────
+  function erpItems(){
+    var a = loadApv();
+    if (!a || !a.docs) return null;
+    var turnOf = function(d){ return ERP_RULES.whoseTurn(d, a); };
+    var p = person(viewer);
+    return {
+      turn: a.docs.filter(function(d){ return turnOf(d) === viewer; }),
+      todo: p.acct ? a.docs.filter(function(d){ return d.status === '승인' && !d.doneAt; }) : [],
+      rejected: a.docs.filter(function(d){ return d.drafter === viewer && d.status === '반려' && !d.resubmittedAs; })
+    };
+  }
+  function erpCount(){ var e = erpItems(); return e ? e.turn.length + e.todo.length + e.rejected.length : 0; }
+  function docLine(d){
+    var f = d.f || {};
+    var what = '';
+    if (d.type === 'leave') what = (f.start || '') + (f.end && f.end !== f.start ? ' ~ ' + f.end : '');
+    else if (d.type === 'expense') what = (f.desc || '') + ' · ' + Number(f.amount || 0).toLocaleString('ko-KR') + '원';
+    else if (d.type === 'credit') what = (f.client || '') + ' · ' + (f.terms || '');
+    else if (d.type === 'dc') what = (f.client || '') + ' · ' + (f.item || '');
+    return (APV_TYPES[d.type] || d.type) + ' · ' + what;
+  }
+
+  // ── 그리기 ─────────────────
+  var listEl = document.getElementById('listScroll');
+  var convEl = document.getElementById('conv');
+  var talkEl = document.getElementById('talk');
+
+  function renderViewer(){
+    document.getElementById('viewerSel').innerHTML = PEOPLE.map(function(p){
+      var tag = p.id === 'chajang' ? ' (사무실·배송 부서장)' : p.id === 'acc1' ? ' (경리부 부서장)' : p.acct ? ' (경리부)' : '';
+      return '<option value="' + p.id + '"' + (p.id === viewer ? ' selected' : '') + '>' + esc(p.name + tag) + '</option>';
+    }).join('');
+  }
+
+  function renderHead(){
+    // 대화를 통째로 지우는 버튼은 대표님에게만
+    document.getElementById('btnReset').hidden = viewer !== 'ceo';
+    var u = totalUnread(), e = erpCount();
+    document.getElementById('headStat').textContent = '안 읽음 ' + u + (e ? ' · ERP 알림 ' + e : '');
+    var n = u + e;
+    document.title = (n ? '(' + n + ') ' : '') + '사내메신저 · 성환공구';
+  }
+
+  function renderList(){
+    var e = erpItems(), ec = erpCount();
+    var erpSub = !e ? '전자결재에 아직 문서가 없습니다'
+      : ec ? [e.turn.length ? '결재할 문서 ' + e.turn.length + '건' : '', e.todo.length ? '처리할 것 ' + e.todo.length + '건' : '', e.rejected.length ? '반려된 내 문서 ' + e.rejected.length + '건' : ''].filter(Boolean).join(' · ')
+      : '지금 챙길 결재가 없습니다';
+    var html = '<button class="row erp' + (openId === 'erp' ? ' on' : '') + '" data-open="erp" type="button">' +
+      '<span class="avatar bell" aria-hidden="true">🔔</span><span class="body"><span class="top"><span class="name">ERP 알림</span></span>' +
+      '<span class="preview">' + esc(erpSub) + '</span></span>' + (ec ? '<span class="badge">' + ec + '</span>' : '') + '</button>';
+
+    var rooms = myRooms().slice().sort(function(a,b){
+      var la = lastMsg(a.id), lb = lastMsg(b.id);
+      return (lb ? lb.at : b.createdAt) - (la ? la.at : a.createdAt);
+    });
+    rooms.forEach(function(r){
+      var lm = lastMsg(r.id), u = unread(r.id);
+      var title = roomTitle(r);
+      var preview = !lm ? '' : lm.deletedAt ? '삭제된 메시지입니다' : (lm.from && r.kind === 'group' ? person(lm.from).name + ': ' : '') + lm.text;
+      var av = r.kind === 'group' ? '<span class="avatar group" aria-hidden="true">' + membersOf(r.id).length + '</span>' : '<span class="avatar" aria-hidden="true">' + esc(initials(title)) + '</span>';
+      html += '<button class="row' + (openId === r.id ? ' on' : '') + '" data-open="' + r.id + '" type="button">' + av +
+        '<span class="body"><span class="top"><span class="name">' + esc(title) + (r.kind === 'group' ? ' <span class="sub">' + membersOf(r.id).length + '명</span>' : '') + '</span>' +
+        '<span class="time">' + (lm ? listTime(lm.at) : '') + '</span></span>' +
+        '<span class="preview">' + esc(preview) + '</span></span>' + (u ? '<span class="badge">' + u + '</span>' : '') + '</button>';
+    });
+
+    var starters = PEOPLE.filter(function(p){ return p.id !== viewer && !dmWith(p.id); });
+    if (starters.length) {
+      html += '<div class="list-label">대화 시작 — 이름을 누르고 첫 말을 보내면 방이 생깁니다</div>';
+      starters.forEach(function(p){
+        html += '<button class="row' + (openId === 'new:' + p.id ? ' on' : '') + '" data-open="new:' + p.id + '" type="button">' +
+          '<span class="avatar" aria-hidden="true">' + esc(initials(p.name)) + '</span><span class="body"><span class="name">' + esc(p.name) + '</span>' +
+          '<span class="preview">' + (p.dept === 'delivery' ? '배송' : p.dept === 'accounting' ? '경리부' : '사무실') + '</span></span></button>';
+      });
+    }
+    listEl.innerHTML = html;
+  }
+
+  // 대화창: 머리 · 본문 · 입력칸 — 새로고침 때는 본문만 다시 그려서 쓰던 글이 지워지지 않게 한다
+  function buildConv(){
+    talkEl.classList.toggle('conv-open', !!openId);
+    if (!openId) {
+      convEl.innerHTML = '<div class="conv-empty">왼쪽에서 대화를 고르세요.<br>내가 멤버인 방만 보입니다 — 대표님도 마찬가지입니다.</div>';
+      return;
+    }
+    var back = '<button class="back" data-back type="button">‹ 목록</button>';
+    if (openId === 'erp') {
+      convEl.innerHTML = '<div class="conv-head">' + back + '<div><div class="title">🔔 ERP 알림</div><div class="members">전자결재에서 내가 챙길 것 — 처리하면 숫자가 줄어듭니다</div></div></div><div class="pane" id="erpPane"></div>';
+      renderErp();
+      return;
+    }
+    if (openId === 'newgroup') {
+      convEl.innerHTML = '<div class="conv-head">' + back + '<div class="title">＋ 단톡방 만들기</div></div><div class="pane">' + groupFormHtml() + '</div>';
+      wireGroupForm();
+      return;
+    }
+    var title, sub;
+    if (openId.indexOf('new:') === 0) {
+      var p = person(openId.slice(4));
+      title = p.name; sub = '첫 말을 보내면 방이 생깁니다';
+    } else {
+      var r = room(openId);
+      if (!r || !isMember(r.id, viewer)) { openId = null; buildConv(); return; }
+      title = roomTitle(r);
+      sub = r.kind === 'group' ? membersOf(r.id).map(function(m){ return person(m.pid).name; }).join(', ') : '1:1 대화';
+    }
+    convEl.innerHTML = '<div class="conv-head">' + back + '<div style="min-width:0"><div class="title">' + esc(title) + '</div><div class="members" id="convMembers">' + esc(sub) + '</div></div></div>' +
+      '<div class="conv-body" id="convBody"></div>' +
+      '<div class="conv-input"><div class="input-row"><textarea id="msgInput" rows="1" placeholder="메시지 입력" aria-label="메시지 입력"></textarea><button class="btn" id="btnSend" type="button">보내기</button></div>' +
+      '<div class="input-hint">Enter 보내기 · Shift+Enter 줄바꿈</div><div class="err" id="sendErr"></div></div>';
+    renderMessages(true);
+    wireInput();
+  }
+
+  function renderMessages(forceBottom){
+    var body = document.getElementById('convBody');
+    if (!body) return;
+    var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+    if (openId.indexOf('new:') === 0) {
+      body.innerHTML = '<div class="conv-empty">아직 대화가 없습니다.<br>아래에 첫 말을 적어 보내세요.</div>';
+      return;
+    }
+    var r = room(openId);
+    var ms = msgsOf(openId), html = '', lastDay = '', lastFrom = '';
+    ms.forEach(function(m){
+      var day = ymd(m.at);
+      if (day !== lastDay) { html += '<div class="date-sep">' + day + '</div>'; lastDay = day; lastFrom = ''; }
+      if (!m.from) { html += '<div class="sys">' + esc(m.text) + '</div>'; lastFrom = ''; return; }
+      var mine = m.from === viewer;
+      var showWho = !mine && r.kind === 'group' && lastFrom !== m.from;
+      var n = mine ? unreadBy(m) : 0;
+      html += '<div class="msg' + (mine ? ' mine' : '') + '">' +
+        (showWho ? '<div class="who">' + esc(person(m.from).name) + '</div>' : '') +
+        '<div class="line"><div class="bubble' + (m.deletedAt ? ' deleted' : '') + '">' + (m.deletedAt ? '삭제된 메시지입니다' : esc(m.text)) + '</div>' +
+        '<div class="meta">' + (n && !m.deletedAt ? '<span class="unread-n" title="아직 안 읽은 사람 수">' + n + '</span>' : '') +
+        (canDelete(m) ? '<button class="del" data-del="' + m.id + '" type="button">지우기</button>' : '') +
+        '<span>' + hm(m.at) + '</span></div></div></div>';
+      lastFrom = m.from;
+    });
+    body.innerHTML = html;
+    if (forceBottom || nearBottom) body.scrollTop = body.scrollHeight;
+    var cm = document.getElementById('convMembers');
+    if (cm && r.kind === 'group') cm.textContent = membersOf(r.id).map(function(m){ return person(m.pid).name; }).join(', ');
+  }
+
+  function renderErp(){
+    var pane = document.getElementById('erpPane');
+    if (!pane) return;
+    var e = erpItems();
+    if (!e) { pane.innerHTML = '<p class="note">전자결재에 아직 문서가 없습니다. <a href="erp-approvals.html">전자결재로 가기 →</a></p>'; return; }
+    // 알림을 누르면 전자결재의 그 탭으로 바로 간다 (#turn 내 차례 · #todo 처리할 것 · #mine 내 신청)
+    var group = function(title, list, hint, target){
+      if (!list.length) return '';
+      return '<div class="erp-group"><h4>' + title + ' <span class="badge">' + list.length + '</span></h4>' +
+        list.map(function(d){ return '<a class="erp-item" href="erp-approvals.html#' + target + '">' + esc(docLine(d)) + '<small>' + esc(d.no) + ' · ' + esc(person(d.drafter).name) + ' · ' + hint + '</small></a>'; }).join('') + '</div>';
+    };
+    var html = group('결재할 문서', e.turn, '내 차례입니다', 'turn') +
+      group('처리할 것 (경리)', e.todo, '대표님 승인 끝 — 지급 · 북청ERP 등록', 'todo') +
+      group('반려된 내 문서', e.rejected, '이유를 보고 고쳐서 다시 올려 주세요', 'mine');
+    pane.innerHTML = (html || '<p class="note">지금 챙길 결재가 없습니다.</p>') +
+      '<p class="note">알림을 누르면 전자결재로 갑니다. 여기 숫자는 「안 읽은 말」이 아니라 「아직 처리 안 한 일」입니다 — 결재하거나 처리하면 줄어듭니다.</p>';
+  }
+
+  function groupFormHtml(){
+    var others = PEOPLE.filter(function(p){ return p.id !== viewer; });
+    var section = function(label, list){
+      return '<div class="pick-group"><div class="gl">' + label + '</div><div class="picks">' +
+        list.map(function(p){ return '<label class="pick"><input type="checkbox" value="' + p.id + '" data-dept="' + p.dept + '"> ' + esc(p.name) + '</label>'; }).join('') + '</div></div>';
+    };
+    return '<div class="field"><label for="gName">방 이름</label><input type="text" id="gName" placeholder="예) 영업팀, 10월 재고조사"></div>' +
+      '<div class="field"><label>멤버</label><div class="quick-picks">' +
+      '<button class="btn small ghost" type="button" data-pick="all">모두 고르기</button>' +
+      '<button class="btn small ghost" type="button" data-pick="office">사무실만</button>' +
+      '<button class="btn small ghost" type="button" data-pick="accounting">경리부만</button>' +
+      '<button class="btn small ghost" type="button" data-pick="delivery">배송 기사님만</button>' +
+      '<button class="btn small ghost" type="button" data-pick="none">모두 풀기</button></div>' +
+      section('사무실', others.filter(function(p){ return p.dept === 'office'; })) +
+      section('경리부', others.filter(function(p){ return p.dept === 'accounting'; })) +
+      section('배송', others.filter(function(p){ return p.dept === 'delivery'; })) + '</div>' +
+      '<div class="err" id="gErr"></div><div style="display:flex;gap:8px;margin-top:8px;"><button class="btn" id="gMake" type="button">만들기</button><button class="btn ghost" id="gCancel" type="button">취소</button></div>' +
+      '<p class="note" style="margin-top:14px;">나(' + esc(person(viewer).name) + ')는 자동으로 들어갑니다. 방을 만들면 멤버 모두의 목록에 바로 보입니다.</p>';
+  }
+
+  function renderAll(){
+    renderViewer(); renderHead(); renderList(); buildConv();
+  }
+
+  // ── 동작 ─────────────────
+  function openRoom(id){
+    openId = id;
+    if (id && id !== 'erp' && id !== 'newgroup' && id.indexOf('new:') !== 0) { fresh(); markRead(id); save(); }
+    renderHead(); renderList(); buildConv();
+    var inp = document.getElementById('msgInput');
+    if (inp && window.innerWidth > 760) inp.focus();
+  }
+
+  function send(){
+    var inp = document.getElementById('msgInput');
+    var err = document.getElementById('sendErr');
+    var txt = inp.value.trim();
+    if (!txt) { err.textContent = '보낼 말을 적어 주세요.'; inp.focus(); return; }
+    fresh();
+    var rid = openId;
+    if (openId.indexOf('new:') === 0) {
+      var pid = openId.slice(4);
+      var ex = dmWith(pid);
+      if (ex) rid = ex.id;
+      else {
+        rid = 'r' + Date.now();
+        S.rooms.push({id:rid, kind:'dm', name:'', createdBy:viewer, createdAt:Date.now()});
+        S.members.push({roomId:rid, pid:viewer, readAt:Date.now()});
+        S.members.push({roomId:rid, pid:pid, readAt:0});
+      }
+    }
+    if (!isMember(rid, viewer)) return;
+    S.msgs.push({id:'m' + Date.now() + Math.random().toString(36).slice(2,6), roomId:rid, from:viewer, text:txt, at:Date.now(), deletedAt:null});
+    markRead(rid);
+    save();
+    var wasNew = rid !== openId;
+    openId = rid;
+    inp.value = '';
+    err.textContent = '';
+    if (wasNew) { renderHead(); renderList(); buildConv(); var i2 = document.getElementById('msgInput'); if (i2) i2.focus(); }
+    else { renderHead(); renderList(); renderMessages(true); }
+  }
+
+  function wireInput(){
+    var inp = document.getElementById('msgInput');
+    inp.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }
+    });
+    inp.addEventListener('input', function(){
+      document.getElementById('sendErr').textContent = '';
+      inp.style.height = '44px';
+      inp.style.height = Math.min(inp.scrollHeight + 2, 120) + 'px';
+    });
+    document.getElementById('btnSend').addEventListener('click', send);
+  }
+
+  function wireGroupForm(){
+    var boxes = function(){ return Array.prototype.slice.call(convEl.querySelectorAll('.pick input')); };
+    convEl.querySelectorAll('[data-pick]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var k = b.getAttribute('data-pick');
+        boxes().forEach(function(x){ x.checked = k === 'all' || x.getAttribute('data-dept') === k; });
+        document.getElementById('gErr').textContent = '';
+      });
+    });
+    document.getElementById('gName').addEventListener('input', function(){ document.getElementById('gErr').textContent = ''; });
+    document.getElementById('gCancel').addEventListener('click', function(){ openRoom(null); });
+    document.getElementById('gMake').addEventListener('click', function(){
+      var name = document.getElementById('gName').value.trim();
+      var picked = boxes().filter(function(x){ return x.checked; }).map(function(x){ return x.value; });
+      var err = document.getElementById('gErr');
+      if (!name) { err.textContent = '방 이름을 적어 주세요.'; document.getElementById('gName').focus(); return; }
+      if (!picked.length) { err.textContent = '멤버를 한 명 이상 골라 주세요.'; return; }
+      fresh();
+      var rid = 'r' + Date.now(), now = Date.now();
+      S.rooms.push({id:rid, kind:'group', name:name, createdBy:viewer, createdAt:now});
+      S.members.push({roomId:rid, pid:viewer, readAt:now});
+      picked.forEach(function(pid){ S.members.push({roomId:rid, pid:pid, readAt:0}); });
+      S.msgs.push({id:'m' + now, roomId:rid, from:null, text:person(viewer).name + ' 님이 「' + name + '」 방을 만들었습니다 · 멤버 ' + (picked.length + 1) + '명', at:now});
+      save();
+      openRoom(rid);
+    });
+  }
+
+  listEl.addEventListener('click', function(e){
+    var b = e.target.closest('[data-open]');
+    if (b) openRoom(b.getAttribute('data-open'));
+  });
+  convEl.addEventListener('click', function(e){
+    if (e.target.closest('[data-back]')) { openRoom(null); return; }
+    var d = e.target.closest('[data-del]');
+    if (d) {
+      var id = d.getAttribute('data-del');
+      fresh();
+      var m = S.msgs.filter(function(x){ return x.id === id; })[0];
+      if (!m || !canDelete(m)) { renderMessages(); return; }
+      m.deletedAt = Date.now(); m.text = '';
+      save(); renderList(); renderMessages();
+    }
+  });
+  document.getElementById('btnGroup').addEventListener('click', function(){ openRoom('newgroup'); });
+  document.getElementById('viewerSel').addEventListener('change', function(e){
+    viewer = e.target.value; setViewer(viewer); openId = null; applyFold(); renderAll();
+  });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (viewer !== 'ceo') return;
+    if (!confirm('주고받은 대화를 지우고 예시 대화로 되돌릴까요?')) return;
+    S = seed(); save(); openId = null; renderAll();
+  });
+
+  // 5초마다 새로 받기 (다른 탭에서 보낸 말은 바로)
+  function refresh(){
+    S = load();
+    if (openId && room(openId) && isMember(openId, viewer) && !document.hidden) {
+      var before = unread(openId);
+      if (before) { markRead(openId); save(); }
+    }
+    renderHead(); renderList();
+    if (openId === 'erp') renderErp();
+    else if (openId && openId !== 'newgroup') {
+      if (openId.indexOf('new:') === 0) {
+        var ex = dmWith(openId.slice(4));
+        if (ex) { openId = ex.id; buildConv(); return; }
+      } else if (!room(openId)) { openId = null; buildConv(); return; }
+      renderMessages();
+    }
+  }
+  setInterval(refresh, 5000);
+  window.addEventListener('storage', function(e){ if (e.key === KEY || e.key === APV_KEY) refresh(); });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) refresh(); });
+
+  // 접기/펴기 — 사람마다 처음 한 번만 펼쳐 보여 주고, 그다음부터는 접어 둔다 (본인이 펼쳐 두면 그대로 기억)
+  // 휴대폰에서는 처음에도 접어 둔다 — 대화 목록까지 내려가는 길이 너무 길어서
+  var fold = document.getElementById('fold');
+  var foldProg = null;
+  function foldKey(){ return FOLD_KEY + ':' + viewer; }
+  function foldGet(){ try { return localStorage.getItem(foldKey()); } catch(e){ return null; } }
+  function foldSet(v){ try { localStorage.setItem(foldKey(), v); } catch(e){} }
+  function syncFold(){ document.getElementById('foldWord').textContent = fold.open ? '접기' : '펼쳐 보기'; }
+  function applyFold(){
+    var stored = foldGet();
+    var want = stored === null ? window.innerWidth > 760 : stored === 'open';
+    if (stored === null) foldSet('closed');
+    if (fold.open !== want) { foldProg = want; fold.open = want; }
+    syncFold();
+  }
+  fold.addEventListener('toggle', function(){
+    syncFold();
+    if (foldProg !== null && fold.open === foldProg) { foldProg = null; return; }
+    foldProg = null;
+    foldSet(fold.open ? 'open' : 'closed');
+  });
+  applyFold();
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

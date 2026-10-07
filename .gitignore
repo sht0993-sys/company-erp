@@ -1,0 +1,5 @@
+# 홈페이지는 별도 저장소(company-web)라서 제외
+홈페이지/
+.claude/
+erp-map-backup-0919.html
+erp-hw2-report.html

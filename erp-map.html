@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성환공구 ERP 지도</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4;
+    --surface:#FFFDF8;
+    --surface-alt:#EFE6D2;
+    --border:#DFD2B4;
+    --ink:#1E2A44;
+    --ink-soft:#4B5670;
+    --muted:#8A7F66;
+    --accent:#C1692F;
+    --high:#A23A2E; --high-bg:#F5DAD3;
+    --mid:#946A17;  --mid-bg:#F1E3C2;
+    --low:#556B4C;  --low-bg:#DEE7D5;
+    --auto:#2C6E68; --auto-bg:#D9EAE7;
+    --human:#6B4F9E; --human-bg:#E7DEF3;
+    --done:#2C6E68;
+    --sidebar-text:#EDE7D8;
+    --sidebar-muted:#9BA6C4;
+    --sidebar-line:#33436A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;display:flex;align-items:stretch;min-height:100vh;}
+
+  /* ── 사이드바 ───────────────────────── */
+  .sidebar{
+    width:258px;flex:none;background:var(--ink);color:var(--sidebar-text);
+    padding:26px 18px 30px;position:sticky;top:0;height:100vh;overflow-y:auto;
+    display:flex;flex-direction:column;gap:22px;
+  }
+  .brand{display:flex;flex-direction:column;gap:2px;}
+  .brand .co{font-size:12px;letter-spacing:.1em;color:var(--sidebar-muted);text-transform:uppercase;}
+  .brand h1{font-family:"Noto Serif KR",serif;font-size:19px;font-weight:900;margin:0;color:#fff;}
+
+  .side-summary{
+    background:#141C31;border:1px solid var(--sidebar-line);border-radius:10px;padding:12px 14px;
+    display:flex;flex-direction:column;gap:6px;font-size:12.5px;
+  }
+  .side-summary .row{display:flex;align-items:center;justify-content:space-between;color:var(--sidebar-muted);}
+  .side-summary .row b{color:#fff;font-size:13px;}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+  .dot-done{background:#5FCBB8;}
+  .dot-progress{background:var(--accent);}
+  .dot-empty{background:#465581;}
+
+  .side-fav{display:flex;flex-direction:column;gap:8px;}
+  .side-label{font-size:11px;letter-spacing:.08em;color:var(--sidebar-muted);text-transform:uppercase;padding:0 2px;}
+  .fav-item{
+    display:flex;align-items:center;gap:8px;background:#141C31;border:1px solid var(--sidebar-line);
+    border-radius:8px;padding:9px 10px;font-size:13px;color:#fff;
+  }
+  .fav-item .star{color:var(--accent);font-size:12px;}
+
+  nav.side-nav{display:flex;flex-direction:column;gap:3px;}
+  .side-cat{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:9px 10px;border-radius:8px;font-size:13.5px;color:var(--sidebar-text);
+  }
+  .side-cat:hover{background:#141C31;}
+  .side-cat .frac{font-size:11.5px;color:var(--sidebar-muted);font-variant-numeric:tabular-nums;}
+
+  .side-foot{margin-top:auto;font-size:11px;color:var(--sidebar-muted);line-height:1.6;border-top:1px solid var(--sidebar-line);padding-top:12px;}
+
+  /* ── 메인 ───────────────────────── */
+  .main{flex:1;min-width:0;padding:32px 36px 90px;max-width:1240px;}
+
+  .callout{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    background:#FBEFDD;border:1px solid #E9CE9E;border-left:4px solid var(--accent);
+    border-radius:10px;padding:13px 18px;margin-bottom:26px;font-size:13.5px;color:#6B4A1E;
+  }
+  .callout b{color:var(--ink);}
+
+  .page-title{font-family:"Noto Serif KR",serif;font-size:26px;font-weight:900;margin:0 0 18px;}
+
+  .hero{
+    background:var(--ink);color:#fff;border-radius:16px;padding:24px 26px;
+    display:grid;grid-template-columns:1.6fr 1fr;gap:24px;margin-bottom:30px;
+  }
+  .hero-left h2{font-family:"Noto Serif KR",serif;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px;}
+  .hero-left .sub{font-size:13px;color:var(--sidebar-muted);margin-bottom:16px;}
+  .hero-progress-num{font-family:"Noto Serif KR",serif;font-weight:900;font-size:28px;margin-bottom:8px;}
+  .hero-progress-num span{color:var(--accent);}
+  .hero-bar-track{height:9px;background:#2B3A5C;border-radius:99px;overflow:hidden;margin-bottom:8px;}
+  .hero-bar-fill{height:100%;background:var(--accent);border-radius:99px;}
+  .hero-note{font-size:12.5px;color:var(--sidebar-muted);}
+  .hero-this-week{
+    margin-top:16px;background:#141C31;border:1px solid var(--sidebar-line);border-radius:10px;padding:12px 14px;
+  }
+  .hero-this-week .lbl{font-size:11px;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+  .hero-this-week .val{font-size:14.5px;font-weight:700;}
+
+  .hero-right{background:#141C31;border:1px solid var(--sidebar-line);border-radius:12px;padding:16px 18px;}
+  .hero-right .lbl{font-size:11px;letter-spacing:.06em;color:var(--sidebar-muted);text-transform:uppercase;margin-bottom:10px;}
+  .next-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--sidebar-line);font-size:13.5px;}
+  .next-item:first-of-type{border-top:none;}
+  .order-num{
+    width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex:none;
+  }
+
+  section.cat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:22px;}
+  .cat-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .cat-header h3{font-family:"Noto Serif KR",serif;font-size:18px;margin:0 0 3px;}
+  .cat-header .sub{font-size:12.5px;color:var(--muted);}
+  .cat-count{font-size:13px;font-weight:700;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  .tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(226px,1fr));gap:11px;}
+  .tile{border:1px solid var(--border);border-radius:11px;padding:12px 13px;background:var(--surface-alt);display:flex;flex-direction:column;gap:7px;}
+  .tile.is-done{background:var(--auto-bg);border-color:#BEDAD4;}
+  .tile-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .tile-status{display:flex;align-items:center;gap:6px;}
+  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex:none;}
+  .status-dot.done{background:var(--done);}
+  .tile-name{font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.35;}
+  .tile-name.strong{font-weight:700;}
+  .tile-loc{font-size:11.5px;color:var(--muted);font-style:italic;}
+  .tile-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;line-height:1.5;white-space:nowrap;}
+  .badge-high{background:var(--high-bg);color:var(--high);}
+  .badge-mid{background:var(--mid-bg);color:var(--mid);}
+  .badge-low{background:var(--low-bg);color:var(--low);}
+  .badge-auto{background:var(--auto-bg);color:var(--auto);}
+  .badge-human{background:var(--human-bg);color:var(--human);}
+  .tag-proposal{display:inline-block;padding:1px 7px;border:1px solid var(--accent);border-radius:999px;font-size:10px;font-weight:700;color:var(--accent);}
+  a.tile{text-decoration:none;color:inherit;cursor:pointer;}
+  a.tile:hover{border-color:var(--accent);}
+
+  .edit-hint{font-size:12px;color:var(--muted);margin:-10px 0 22px;}
+
+  .quick-card{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    background:var(--surface);border:2px solid var(--accent);border-radius:14px;
+    padding:16px 20px;margin-bottom:22px;text-decoration:none;color:var(--ink);
+  }
+  .quick-card:hover{background:#FBEFDD;}
+  .quick-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+  .quick-card .qc-label{font-size:11px;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:3px;}
+  .quick-card .qc-title{font-family:"Noto Serif KR",serif;font-size:19px;font-weight:900;}
+  .quick-card .qc-sub{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+  .quick-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:22px;}
+  .quick-row .quick-card{margin-bottom:0;}
+  .qc-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;background:var(--high);color:#fff;font-family:"Noto Sans KR",sans-serif;font-size:12px;font-weight:700;padding:0 7px;vertical-align:middle;}
+  .quick-card .qc-go{font-size:13.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:999px;padding:8px 16px;white-space:nowrap;}
+
+  /* ── 편집 가능한 칸 ───────────────────────── */
+  .tile{cursor:grab;position:relative;}
+  .tile.dragging{opacity:.35;cursor:grabbing;}
+  .tile-grid.drag-over{outline:2px dashed var(--accent);outline-offset:6px;border-radius:11px;}
+  .tile[style*="--tile-accent"]{border-color:var(--tile-accent);background:color-mix(in srgb, var(--tile-accent) 14%, var(--surface-alt));}
+  .tile.is-done[style*="--tile-accent"]{background:color-mix(in srgb, var(--tile-accent) 20%, var(--auto-bg));}
+
+  .tile-top-right{display:flex;align-items:center;gap:7px;}
+  .color-dot{
+    width:13px;height:13px;border-radius:50%;border:1.5px solid var(--border);
+    background:#fff;cursor:pointer;padding:0;flex:none;
+  }
+  .tile[style*="--tile-accent"] .color-dot{background:var(--tile-accent);border-color:var(--tile-accent);}
+
+  .tile-name-text{border-radius:4px;outline:none;}
+  .tile-name-text[contenteditable="true"]{
+    background:#fff;box-shadow:0 0 0 2px var(--accent);padding:0 3px;margin:0 -3px;cursor:text;
+  }
+
+  footer.page-foot{margin-top:30px;font-size:12px;color:var(--muted);line-height:1.7;}
+
+  @media (max-width:880px){
+    body{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:relative;}
+    .hero{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <span class="co">(주)성환공구</span>
+    <h1>ERP 지도</h1>
+  </div>
+
+  <div class="side-summary">
+    <div class="row"><span><span class="dot dot-done"></span>완성</span><b>6</b></div>
+    <div class="row"><span><span class="dot dot-progress"></span>진행중</span><b>0</b></div>
+    <div class="row"><span><span class="dot dot-empty"></span>미완성</span><b>45</b></div>
+  </div>
+
+  <div class="side-fav">
+    <span class="side-label">즐겨찾기</span>
+    <a class="fav-item" href="erp-map.html" style="text-decoration:none;"><span class="star">★</span> ERP 지도 (홈)</a>
+    <a class="fav-item" href="erp-approvals.html" style="text-decoration:none;"><span class="star">★</span> 전자결재</a>
+    <a class="fav-item" href="erp-talk.html" style="text-decoration:none;"><span class="star">★</span> 사내메신저</a>
+    <div class="fav-item"><span class="star">★</span> 회사 일정판</div>
+  </div>
+
+  <nav class="side-nav">
+    <span class="side-label">전체 분류</span>
+    <a class="side-cat" href="erp-approvals.html" style="text-decoration:none;">⓪ 전사 (전자결재 · 메신저) <span class="frac">2/2</span></a>
+    <div class="side-cat">① 돈 <span class="frac">0/10</span></div>
+    <div class="side-cat">② 일 <span class="frac">0/10</span></div>
+    <div class="side-cat">③ 물건 <span class="frac">0/8</span></div>
+    <div class="side-cat">④ 사람 <span class="frac">1/6</span></div>
+    <div class="side-cat">⑤ 기한 <span class="frac">0/8</span></div>
+    <div class="side-cat">⑥ 알리기 <span class="frac">2/6</span></div>
+  </nav>
+
+  <nav class="side-nav">
+    <span class="side-label">설정</span>
+    <a class="side-cat" href="erp-mindmap.html" style="text-decoration:none;">⚙️ ERP 지도 편집 (마인드맵)</a>
+  </nav>
+
+  <div class="side-foot">
+    기혁스 3기 · 2회차<br>
+    정본 파일 — erp-map.html<br>
+    고칠 때는 새로 만들지 말 것
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="callout">
+    <span>안 되는 것 · 불편한 것이 있으면 클로드에게 바로 말씀하세요 — <b>고치는 게 빠릅니다.</b></span>
+  </div>
+
+  <h2 class="page-title">포털 홈</h2>
+  <div class="edit-hint">칸 이름은 더블클릭해서 고치고, 드래그해서 옮기고, 오른쪽 위 작은 동그라미를 눌러 색을 바꿀 수 있습니다.</div>
+
+  <div class="quick-row">
+    <a class="quick-card" href="erp-approvals.html">
+      <div>
+        <div class="qc-label">전사 · 모두가 같이 쓰는 것</div>
+        <div class="qc-title">📝 전자결재 <span class="qc-badge" id="qcApv" hidden></span></div>
+        <div class="qc-sub">기안 → 부서장(차장·경리과장) → 대표 → 경리 처리 · 연차 · 지출결의서 · 외상거래·여신 · DC·단가 예외</div>
+      </div>
+      <span class="qc-go">결재하러 가기 →</span>
+    </a>
+    <a class="quick-card" href="erp-talk.html">
+      <div>
+        <div class="qc-label">전사 · 모두가 같이 쓰는 것</div>
+        <div class="qc-title">💬 사내메신저 <span class="qc-badge" id="qcTalk" hidden></span></div>
+        <div class="qc-sub">1:1 · 단톡 대화 · 기록이 회사에 남음 · 결재 알림도 여기로</div>
+      </div>
+      <span class="qc-go">대화하러 가기 →</span>
+    </a>
+  </div>
+
+  <div class="hero">
+    <div class="hero-left">
+      <h2>📖 ERP 지도</h2>
+      <div class="sub">완성된 설계도가 아니라, 일주일에 한 칸씩 채워가는 판입니다.</div>
+      <div class="hero-progress-num">완성 <span>6</span> / 51</div>
+      <div class="hero-bar-track"><div class="hero-bar-fill" style="width:12%"></div></div>
+      <div class="hero-note">칸이 비어 있는 것은 실패가 아니라 순서입니다.</div>
+      <div class="hero-this-week">
+        <div class="lbl">1차 착수 · ①번</div>
+        <div class="val">매입 거래명세서 입력 — 하루 100~200건 수기 입력, 재고 부정확의 근본 원인</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="lbl">다음에 붙일 칸</div>
+      <div class="next-item"><span class="order-num">2</span> 미수금 리스트 (업체별 약속일)</div>
+      <div class="next-item"><span class="order-num">3</span> 거래처 연락처</div>
+      <div class="next-item"><span class="order-num">4</span> 은행 입금내역 확인</div>
+      <div class="next-item"><span class="order-num">5</span> 매입처 결제 약속일</div>
+      <div class="next-item"><span class="order-num">6</span> 차량 정기점검일</div>
+    </div>
+  </div>
+
+  <!-- 오늘 완성 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>⭐ 오늘 완성 — 회사 일정판</h3><div class="sub">9/10 · 구글 캘린더 연동 · 전원 같은 것</div></div>
+      <div class="cat-count">1 / 1</div>
+    </div>
+    <div class="tile-grid">
+      <div class="tile is-done">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">전사 일정판 (구글 캘린더)</div>
+        <div class="tile-loc">구글 캘린더 · 직원 각자 입력</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 돈 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>① 돈</h3><div class="sub">자금 · 매출 · 미수금 — 대표 · 경리 담당이 본다</div></div>
+      <div class="cat-count">0 / 10</div>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">2</span></div>
+        <div class="tile-name strong">미수금 리스트 (업체별 약속일)</div>
+        <div class="tile-loc">메모 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">4</span></div>
+        <div class="tile-name strong">은행 입금내역 확인 (미수금 매칭)</div>
+        <div class="tile-loc">통장 수기 확인 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">미지급금 날짜별 정리</div>
+        <div class="tile-loc">메모 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">매출 합계 (일/월)</div>
+        <div class="tile-loc">북청 ERP · 매일</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">여신조건 관리 (30/60/90일, 조기DC)</div>
+        <div class="tile-loc">수기 · 구두 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">세금계산서 발행(말일)·국세청 신고(10일)</div>
+        <div class="tile-loc">경리 개별 처리 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">4대보험·국세·지방세 자동이체(10일)</div>
+        <div class="tile-loc">자동이체 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">카드대금 자동이체</div>
+        <div class="tile-loc">자동이체 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">거래처별 여신한도 초과 알림 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">매출·매입 통계 (거래처별/품목별) <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">북청 ERP(부정확) · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 일 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>② 일</h3><div class="sub">영업 · 현장 · 거래처 — 영업 담당 5명이 본다</div></div>
+      <div class="cat-count">0 / 10</div>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">3</span></div>
+        <div class="tile-name strong">거래처 연락처</div>
+        <div class="tile-loc">북청 ERP · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">주문 접수 (전화/메일/카톡/방문)</div>
+        <div class="tile-loc">각자 처리, 기록 안 됨 · 매일 다수</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">배차 (오전10시/오후1시30분)</div>
+        <div class="tile-loc">배송기사 1명이 수기 분배 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">배송기사 스케줄</div>
+        <div class="tile-loc">담당 직원 수기 분류 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">매출 거래명세서 (배송 서명)</div>
+        <div class="tile-loc">종이 · 매일 약 200건</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">배송 누락 · 현장 대응</div>
+        <div class="tile-loc">현장 재량, 미보고 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">거래처별 주문 이력·선호 품목 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">배송 완료 실시간 확인 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">반품·클레임 이력 관리 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">견적서 발행 및 이력 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 물건 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>③ 물건</h3><div class="sub">재고 · 장비 — 전 직원이 본다</div></div>
+      <div class="cat-count">0 / 8</div>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">1</span></div>
+        <div class="tile-name strong">매입 거래명세서 입력</div>
+        <div class="tile-loc">수기 입력, 업무 밀림 · 매일 100~200건</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">재고 수량</div>
+        <div class="tile-loc">북청 ERP (부정확) · 수시</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">재고조사</div>
+        <div class="tile-loc">과거 시도 후 중단 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">품목 마스터 (카탈로그 vs 실보유재고) <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">재고 부족·발주점 알림 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 수시</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">회사 차량 관리 이력 (정비·소모품)</div>
+        <div class="tile-loc">담당자 개별 숙지 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">차량 보험 (관리)</div>
+        <div class="tile-loc">보험 담당자 연락 의존 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">차량 관리대장 (보험·점검·사고 통합) <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 사람 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>④ 사람</h3><div class="sub">직원 · 근태 · 채용 — 급여는 대표만 본다</div></div>
+      <div class="cat-count">1 / 6</div>
+    </div>
+    <div class="tile-grid">
+      <a class="tile is-done" href="erp-approvals.html#leave">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name">직원 연차 (잔여 자동 차감)</div>
+        <div class="tile-loc">전자결재 연차 승인 → 잔여에서 자동으로 빠짐</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </a>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">급여 (5일 지급, 대표만 열람)</div>
+        <div class="tile-loc">별도 관리 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-high">상·보안</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">직원별 담당 업무 (멀티 업무)</div>
+        <div class="tile-loc">대표님 기억</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">근태(출퇴근) 관리 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 매일</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">배송기사 계약·개인정보 관리 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">직원 자격증·면허 관리 (지게차 등) <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 기한 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>⑤ 기한</h3><div class="sub">면허 · 계약 · 신고 만기 — 놓치면 위험, 대표가 본다</div></div>
+      <div class="cat-count">0 / 8</div>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">5</span></div>
+        <div class="tile-name strong">매입처 결제 약속일</div>
+        <div class="tile-loc">메모 · 정기</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">6</span></div>
+        <div class="tile-name strong">차량 정기점검일</div>
+        <div class="tile-loc">개별 숙지, 과거 누락·벌금 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name strong">국세청 신고일 (10일)</div>
+        <div class="tile-loc">경리 숙지 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-high">상</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">세금계산서 발행일 (말일)</div>
+        <div class="tile-loc">경리 숙지 · 월 1회</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">차량 보험 갱신일</div>
+        <div class="tile-loc">보험 담당자 연락 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">거래처 여신조건 갱신·재검토일 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">사업자등록증·통신판매업 신고 갱신 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">근로계약서 갱신일 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 알리기 -->
+  <section class="cat">
+    <div class="cat-header">
+      <div><h3>⑥ 알리기</h3><div class="sub">홈페이지 · 광고 · 콘텐츠 — 9/17 3회차에서 다룸</div></div>
+      <div class="cat-count">2 / 6</div>
+    </div>
+    <div class="tile-grid">
+      <a class="tile is-done" href="https://company-web-bge.pages.dev/" target="_blank" rel="noopener">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">회사 홈페이지</div>
+        <div class="tile-loc">company-web-bge.pages.dev · 깃허브 연동, 고치면 자동 배포</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </a>
+      <a class="tile is-done" href="erp-inquiries.html">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">문의 관리</div>
+        <div class="tile-loc">홈페이지 문의하기 → 수파베이스 → 여기서 확인·상태 변경</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </a>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">홈페이지·스토어 상품 관리 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">크레텍 플랫폼(sht09.kr) · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">신상품·이벤트 홍보 게시 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">크레텍 플랫폼 고정 영역 · 비정기</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">재고-온라인몰 연동 여부 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음, 미확인</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-auto">자동</span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div></div>
+        <div class="tile-name">SNS·블로그 등 별도 마케팅 <span class="tag-proposal">제안</span></div>
+        <div class="tile-loc">없음, 미확인</div>
+        <div class="tile-badges"><span class="badge badge-low">하</span><span class="badge badge-human">사람</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    (주)성환공구 · ERP 지도 v3 · 2026-09-17 (기혁스 3기 3회차 — 홈페이지 연동) · 바오밥 작업대 포맷 참고<br>
+    1차 착수 순서 6개 — ①매입 거래명세서 입력 ②미수금 리스트 ③거래처 연락처 ④은행 입금내역 확인 ⑤매입처 결제 약속일 ⑥차량 정기점검일<br>
+    이 파일은 「erp-map.html」이 정본입니다 — 고칠 때는 새로 만들지 말고 이 파일을 고쳐주세요.
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'erpMapEdits_v1';
+  var PALETTE = ['#C1692F','#A23A2E','#946A17','#2C6E68','#6B4F9E','#556B4C'];
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { state = {}; }
+  if (!state.items) state.items = {};
+  if (!state.order) state.order = {};
+
+  function save(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  // 1) 안정적인 id 부여 (원래 HTML 순서 기준)
+  var grids = document.querySelectorAll('.tile-grid');
+  grids.forEach(function(grid, gi){
+    if (!grid.dataset.gridId) grid.dataset.gridId = 'grid-' + gi;
+  });
+  document.querySelectorAll('.tile').forEach(function(tile, i){
+    if (!tile.dataset.id) {
+      var grid = tile.closest('.tile-grid');
+      tile.dataset.id = grid.dataset.gridId + '-' + i;
+    }
+  });
+
+  // 2) 이름 텍스트만 따로 감싸기 (제안 태그 등은 그대로 둠)
+  document.querySelectorAll('.tile-name').forEach(function(nameEl){
+    if (nameEl.querySelector('.tile-name-text')) return;
+    var span = document.createElement('span');
+    span.className = 'tile-name-text';
+    Array.prototype.slice.call(nameEl.childNodes).forEach(function(node){
+      if (node.nodeType === 1 && node.classList && node.classList.contains('tag-proposal')) return;
+      span.appendChild(node);
+    });
+    nameEl.insertBefore(span, nameEl.firstChild);
+  });
+
+  // 3) 색상 동그라미 버튼 삽입 (기존 순서번호는 그대로 두고 옆에 추가)
+  document.querySelectorAll('.tile-top').forEach(function(top){
+    if (top.dataset.enhanced) return;
+    top.dataset.enhanced = '1';
+    var rightWrap = document.createElement('div');
+    rightWrap.className = 'tile-top-right';
+    var order = top.querySelector('.order-num');
+    if (order) { top.removeChild(order); rightWrap.appendChild(order); }
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'color-dot';
+    btn.title = '클릭해서 색 바꾸기';
+    btn.draggable = false;
+    rightWrap.appendChild(btn);
+    top.appendChild(rightWrap);
+  });
+
+  function applyColor(tile, color){
+    if (color) tile.style.setProperty('--tile-accent', color);
+    else tile.style.removeProperty('--tile-accent');
+  }
+
+  // 4) 저장된 이름·색 적용
+  document.querySelectorAll('.tile').forEach(function(tile){
+    var rec = state.items[tile.dataset.id];
+    if (!rec) return;
+    if (rec.name) {
+      var span = tile.querySelector('.tile-name-text');
+      if (span) span.textContent = rec.name;
+    }
+    if (rec.color) applyColor(tile, rec.color);
+  });
+
+  // 5) 저장된 순서 적용 (분류 간 이동 포함)
+  Object.keys(state.order).forEach(function(gridId){
+    var grid = document.querySelector('.tile-grid[data-grid-id="' + gridId + '"]');
+    if (!grid) return;
+    state.order[gridId].forEach(function(id){
+      var tile = document.querySelector('.tile[data-id="' + id + '"]');
+      if (tile) grid.appendChild(tile);
+    });
+  });
+
+  function persistOrder(){
+    document.querySelectorAll('.tile-grid').forEach(function(grid){
+      var ids = Array.prototype.map.call(grid.querySelectorAll('.tile'), function(t){ return t.dataset.id; });
+      state.order[grid.dataset.gridId] = ids;
+    });
+    save();
+  }
+
+  // 더블클릭 = 이름 수정
+  document.querySelectorAll('.tile-name-text').forEach(function(span){
+    function finish(){
+      if (span.getAttribute('contenteditable') !== 'true') return;
+      span.setAttribute('contenteditable', 'false');
+      var tile = span.closest('.tile');
+      var id = tile.dataset.id;
+      var text = span.textContent.trim();
+      if (!state.items[id]) state.items[id] = {};
+      state.items[id].name = text;
+      save();
+    }
+    span.addEventListener('dblclick', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      span.setAttribute('contenteditable', 'true');
+      span.focus();
+      document.execCommand('selectAll', false, null);
+    });
+    span.addEventListener('blur', finish);
+    span.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); span.blur(); }
+    });
+    span.addEventListener('click', function(e){ if (span.getAttribute('contenteditable') === 'true') e.stopPropagation(); });
+  });
+
+  // 클릭 = 색 바꾸기 (동그라미를 누를 때마다 팔레트를 순서대로, 끝까지 가면 원래 색으로)
+  document.querySelectorAll('.color-dot').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var tile = btn.closest('.tile');
+      var id = tile.dataset.id;
+      if (!state.items[id]) state.items[id] = {};
+      var cur = state.items[id].color;
+      var idx = cur ? PALETTE.indexOf(cur) : -1;
+      var next = (idx + 1 < PALETTE.length) ? PALETTE[idx + 1] : null;
+      if (next) state.items[id].color = next; else delete state.items[id].color;
+      applyColor(tile, next);
+      save();
+    });
+  });
+
+  // 링크가 있는 칸(홈페이지·문의 관리)에서 이름/색 조작 시 페이지 이동 막기
+  document.querySelectorAll('a.tile').forEach(function(a){
+    a.addEventListener('click', function(e){
+      if (e.target.closest('.tile-name-text') || e.target.closest('.color-dot')) e.preventDefault();
+    });
+  });
+
+  // 드래그 = 자리 옮기기 (같은 분류 안에서도, 다른 분류로도)
+  var dragSrc = null;
+  document.querySelectorAll('.tile').forEach(function(tile){
+    tile.setAttribute('draggable', 'true');
+    tile.addEventListener('dragstart', function(e){
+      dragSrc = tile;
+      tile.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', tile.dataset.id);
+    });
+    tile.addEventListener('dragend', function(){
+      tile.classList.remove('dragging');
+      document.querySelectorAll('.tile-grid').forEach(function(g){ g.classList.remove('drag-over'); });
+      dragSrc = null;
+      persistOrder();
+    });
+  });
+
+  function closestTile(grid, x, y){
+    var tiles = Array.prototype.slice.call(grid.querySelectorAll('.tile:not(.dragging)'));
+    var best = null, bestDist = Infinity;
+    tiles.forEach(function(el){
+      var box = el.getBoundingClientRect();
+      var cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      var dist = Math.hypot(x - cx, y - cy);
+      if (dist < bestDist) { bestDist = dist; best = el; }
+    });
+    if (!best) return null;
+    var box = best.getBoundingClientRect();
+    return (x > box.left + box.width / 2) ? best.nextElementSibling : best;
+  }
+
+  document.querySelectorAll('.tile-grid').forEach(function(grid){
+    grid.addEventListener('dragover', function(e){
+      e.preventDefault();
+      if (!dragSrc) return;
+      grid.classList.add('drag-over');
+      var after = closestTile(grid, e.clientX, e.clientY);
+      if (after == null) grid.appendChild(dragSrc);
+      else if (after !== dragSrc) grid.insertBefore(dragSrc, after);
+    });
+    grid.addEventListener('dragleave', function(e){
+      if (e.target === grid) grid.classList.remove('drag-over');
+    });
+    grid.addEventListener('drop', function(e){
+      e.preventDefault();
+      grid.classList.remove('drag-over');
+    });
+  });
+})();
+</script>
+<script>
+// 첫 화면 카드에 「내가 결재할 건」 · 「안 읽은 말」 숫자를 띄운다 (전자결재 · 메신저와 같은 판정)
+(function(){
+  function read(k){ try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } }
+  function show(id, n){ var el = document.getElementById(id); if (!el) return; el.hidden = !n; el.textContent = n; }
+  function update(){
+    var apv = read('sht-approvals-v1'), talk = read('sht-talk-v1');
+    var viewer = (apv && apv.viewer) || (talk && talk.viewer) || 'ceo';
+    var turn = 0;
+    if (apv && apv.docs) turn = apv.docs.filter(function(d){
+      if (d.status !== '진행중') return false;
+      var who = (d.managerId && !d.mgrAt) ? (apv.emergency ? 'ceo' : d.managerId) : 'ceo';
+      return who === viewer;
+    }).length;
+    var unread = 0;
+    if (talk && talk.members && talk.msgs) talk.members.forEach(function(m){
+      if (m.pid !== viewer) return;
+      unread += talk.msgs.filter(function(x){ return x.roomId === m.roomId && x.from !== viewer && x.at > m.readAt; }).length;
+    });
+    show('qcApv', turn); show('qcTalk', unread);
+  }
+  update();
+  window.addEventListener('storage', update);
+  setInterval(update, 5000);
+})();
+</script>
+</body>
+</html>

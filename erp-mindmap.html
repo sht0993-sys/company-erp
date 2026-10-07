@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP 지도 편집 (마인드맵)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2; --border:#DFD2B4;
+    --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --done:#2C6E68; --done-bg:#D9EAE7;
+    --progress:#946A17; --progress-bg:#F1E3C2;
+    --todo:#8A7F66; --todo-bg:#EFE6D2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  .topbar{padding:14px 22px;background:#FBEFDD;border-bottom:1px solid #E9CE9E;font-size:13px;color:#6B4A1E;display:flex;justify-content:space-between;gap:16px;align-items:center;flex:none;}
+  .crumb{padding:10px 22px 4px;font-size:13px;color:var(--muted);flex:none;}
+  .crumb b{color:var(--ink);}
+  .crumb a{color:var(--muted);text-decoration:none;}
+  .crumb a:hover{color:var(--accent);}
+
+  .toolbar{
+    display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--ink);flex:none;flex-wrap:wrap;
+  }
+  .toolbar .title{color:#fff;font-family:"Noto Serif KR",serif;font-weight:900;font-size:14px;margin-right:10px;white-space:nowrap;}
+  .toolbar button{
+    background:#141C31;color:#EDE7D8;border:1px solid #33436A;border-radius:7px;
+    padding:7px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  }
+  .toolbar button:hover{border-color:var(--accent);}
+  .toolbar button.warn{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .toolbar .spacer{flex:1;}
+
+  .body-wrap{flex:1;display:flex;min-height:0;}
+
+  .side{width:250px;flex:none;background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;}
+  .side h4{font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin:0 0 10px;}
+  .progress-row{display:flex;gap:8px;margin-bottom:18px;}
+  .progress-tile{flex:1;background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;}
+  .progress-tile b{display:block;font-family:"Noto Serif KR",serif;font-size:19px;}
+  .progress-tile span{font-size:11px;color:var(--muted);}
+  .progress-tile.done b{color:var(--done);}
+  .progress-tile.progress b{color:var(--progress);}
+  .progress-tile.todo b{color:var(--muted);}
+
+  .sel-panel{background:var(--surface-alt);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:18px;font-size:13px;min-height:64px;}
+  .sel-panel .empty{color:var(--muted);font-size:12.5px;line-height:1.6;}
+  .sel-name{font-weight:700;margin-bottom:8px;line-height:1.4;}
+  .sel-status-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .sel-status-btn{border:none;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700;cursor:pointer;}
+  .sel-hint{font-size:11px;color:var(--muted);margin-top:6px;}
+
+  .howto{font-size:12px;color:var(--ink-soft);line-height:2;}
+  .howto b{background:var(--surface-alt);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-family:monospace;color:var(--ink);}
+
+  .canvas-outer{flex:1;position:relative;overflow:hidden;background:
+      radial-gradient(circle, #E7DBBE 1px, transparent 1px) 0 0/22px 22px, var(--bg);
+      cursor:grab;
+  }
+  .canvas-outer.panning{cursor:grabbing;}
+  .canvas-inner{position:absolute;top:0;left:0;transform-origin:0 0;}
+  svg.lines{position:absolute;overflow:visible;pointer-events:none;top:0;left:0;}
+
+  .node{
+    position:absolute;transform:translate(-50%,-50%);
+    border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700;white-space:nowrap;
+    border:2px solid transparent;box-shadow:0 1px 3px rgba(30,42,68,.15);user-select:none;
+  }
+  .node.root{background:var(--ink);color:#fff;font-family:"Noto Serif KR",serif;font-size:16px;padding:12px 22px;}
+  .node.branch{color:#fff;font-size:13.5px;}
+  .node.child{background:var(--surface);color:var(--ink);font-weight:500;cursor:grab;display:flex;align-items:center;gap:7px;}
+  .node.child:hover{border-color:var(--accent);}
+  .node.child.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,105,47,.25);}
+  .node.child.dragging{opacity:.35;}
+  .node.child .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .node-text[contenteditable="true"]{background:#fff;outline:none;box-shadow:0 0 0 2px var(--accent);border-radius:4px;padding:0 3px;cursor:text;}
+  .node.child.drop-target{box-shadow:0 0 0 3px var(--accent);}
+
+  footer{padding:8px 22px;font-size:11.5px;color:var(--muted);background:var(--surface);border-top:1px solid var(--border);flex:none;}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span>ERP 지도 편집 화면입니다. 안 되는 것 · 불편한 것이 있으면 클로드에게 바로 말씀하세요 — <b style="color:var(--ink)">고치는 게 빠릅니다.</b></span>
+  </div>
+  <div class="crumb"><a href="erp-map.html">📖 ERP 지도</a> › <b>지도 편집 (마인드맵)</b></div>
+
+  <div class="toolbar">
+    <span class="title">🗺️ ERP 지도 마인드맵</span>
+    <button id="btnFit">화면 맞추기</button>
+    <button id="btnZoomOut">－</button>
+    <button id="btnZoomIn">＋</button>
+    <span class="spacer"></span>
+    <button id="btnReset" class="warn">원래대로 (고친 것 지우기)</button>
+  </div>
+
+  <div class="body-wrap">
+    <aside class="side">
+      <h4>진척</h4>
+      <div class="progress-row">
+        <div class="progress-tile done"><b id="cntDone">0</b><span>완성</span></div>
+        <div class="progress-tile progress"><b id="cntProgress">0</b><span>진행중</span></div>
+        <div class="progress-tile todo"><b id="cntTodo">0</b><span>미완성</span></div>
+      </div>
+
+      <h4>선택한 칸</h4>
+      <div class="sel-panel" id="selPanel">
+        <div class="empty">칸을 클릭하면 이름 · 완성 상태를 여기서 바꿀 수 있습니다.</div>
+      </div>
+
+      <h4>조작법</h4>
+      <div class="howto">
+        더블클릭 = 이름 수정<br>
+        선택 후 옆 동그라미 클릭 = 완성 상태 바꾸기<br>
+        칸을 끌어 다른 칸에 놓기 = 분류 옮기기<br>
+        칸을 위/아래로 끌기 = 순서 바꾸기<br>
+        빈 곳 드래그 = 화면 이동<br>
+        <b>＋ / －</b> = 확대 · 축소
+      </div>
+    </aside>
+
+    <div class="canvas-outer" id="canvasOuter">
+      <div class="canvas-inner" id="canvasInner">
+        <svg class="lines" id="linesSvg"></svg>
+      </div>
+    </div>
+  </div>
+
+  <footer>성환공구 ERP · 마인드맵 편집 · 이 컴퓨터의 이 브라우저에 저장됩니다 · 원본 항목은 erp-map.html과 같습니다</footer>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'erpMindmapEdits_v1';
+
+  var BASE_BRANCHES = [
+    {id:'money', name:'① 돈', color:'#C1692F', side:'right', children:[
+      {id:'money-1', name:'미수금 리스트 (업체별 약속일)', status:'todo'},
+      {id:'money-2', name:'은행 입금내역 확인', status:'todo'},
+      {id:'money-3', name:'미지급금 날짜별 정리', status:'todo'},
+      {id:'money-4', name:'매출 합계 (일/월)', status:'todo'},
+      {id:'money-5', name:'여신조건 관리', status:'todo'},
+      {id:'money-6', name:'세금계산서 · 국세청 신고', status:'todo'},
+      {id:'money-7', name:'4대보험 자동이체', status:'todo'},
+      {id:'money-8', name:'카드대금 자동이체', status:'todo'},
+      {id:'money-9', name:'여신한도 초과 알림 (제안)', status:'todo'},
+      {id:'money-10', name:'매출·매입 통계 (제안)', status:'todo'}
+    ]},
+    {id:'work', name:'② 일', color:'#3B6EA5', side:'right', children:[
+      {id:'work-0', name:'전사 일정판 ⭐', status:'done'},
+      {id:'work-1', name:'거래처 연락처', status:'todo'},
+      {id:'work-2', name:'주문 접수', status:'todo'},
+      {id:'work-3', name:'배차', status:'todo'},
+      {id:'work-4', name:'배송기사 스케줄', status:'todo'},
+      {id:'work-5', name:'매출 거래명세서', status:'todo'},
+      {id:'work-6', name:'배송 누락 대응', status:'todo'},
+      {id:'work-7', name:'거래처별 주문 이력 (제안)', status:'todo'},
+      {id:'work-8', name:'배송 완료 실시간 확인 (제안)', status:'todo'},
+      {id:'work-9', name:'반품 · 클레임 관리 (제안)', status:'todo'},
+      {id:'work-10', name:'견적서 발행 (제안)', status:'todo'}
+    ]},
+    {id:'goods', name:'③ 물건', color:'#4C7A3D', side:'right', children:[
+      {id:'goods-1', name:'매입 거래명세서 입력', status:'todo'},
+      {id:'goods-2', name:'재고 수량', status:'todo'},
+      {id:'goods-3', name:'재고조사', status:'todo'},
+      {id:'goods-4', name:'품목 마스터 (제안)', status:'todo'},
+      {id:'goods-5', name:'재고 부족 알림 (제안)', status:'todo'},
+      {id:'goods-6', name:'차량 관리 이력', status:'todo'},
+      {id:'goods-7', name:'차량 보험 (관리)', status:'todo'},
+      {id:'goods-8', name:'차량 관리대장 (제안)', status:'todo'}
+    ]},
+    {id:'people', name:'④ 사람', color:'#6B4F9E', side:'left', children:[
+      {id:'people-1', name:'직원 연차 (잔여 자동 차감)', status:'done'},
+      {id:'people-2', name:'급여', status:'todo'},
+      {id:'people-3', name:'직원별 담당 업무', status:'todo'},
+      {id:'people-4', name:'근태 관리 (제안)', status:'todo'},
+      {id:'people-5', name:'배송기사 계약 관리 (제안)', status:'todo'},
+      {id:'people-6', name:'자격증 · 면허 관리 (제안)', status:'todo'}
+    ]},
+    {id:'deadline', name:'⑤ 기한', color:'#A23A2E', side:'left', children:[
+      {id:'deadline-1', name:'매입처 결제 약속일', status:'todo'},
+      {id:'deadline-2', name:'차량 정기점검일', status:'todo'},
+      {id:'deadline-3', name:'국세청 신고일', status:'todo'},
+      {id:'deadline-4', name:'세금계산서 발행일', status:'todo'},
+      {id:'deadline-5', name:'차량 보험 갱신일', status:'todo'},
+      {id:'deadline-6', name:'여신조건 갱신일 (제안)', status:'todo'},
+      {id:'deadline-7', name:'사업자등록증 갱신 (제안)', status:'todo'},
+      {id:'deadline-8', name:'근로계약서 갱신일 (제안)', status:'todo'}
+    ]},
+    {id:'promo', name:'⑥ 알리기', color:'#2C6E68', side:'left', children:[
+      {id:'promo-1', name:'회사 홈페이지', status:'done'},
+      {id:'promo-2', name:'문의 관리', status:'done'},
+      {id:'promo-3', name:'홈페이지 · 스토어 관리 (제안)', status:'todo'},
+      {id:'promo-4', name:'신상품 홍보 게시 (제안)', status:'todo'},
+      {id:'promo-5', name:'재고-온라인몰 연동 (제안)', status:'todo'},
+      {id:'promo-6', name:'SNS · 블로그 마케팅 (제안)', status:'todo'}
+    ]}
+  ];
+
+  var STATUS_COLOR = {done:'#2C6E68', progress:'#946A17', todo:'#B9AE8F'};
+  var STATUS_NEXT = {done:'progress', progress:'todo', todo:'done'};
+
+  var state = null;
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){ state = null; }
+
+  function cloneBase(){
+    return JSON.parse(JSON.stringify(BASE_BRANCHES));
+  }
+
+  var branches = state && state.branches ? state.branches : cloneBase();
+
+  // 코드 쪽에 새 칸이 늘거나 줄면 여기도 따라오게 맞춰준다 (없는 항목은 빼고, 새 항목은 뒤에 붙임)
+  (function reconcile(){
+    var baseMap = {};
+    BASE_BRANCHES.forEach(function(b){ b.children.forEach(function(c){ baseMap[c.id] = {name:c.name, branch:b.id}; }); });
+    branches.forEach(function(b){
+      b.children = b.children.filter(function(c){ return !!baseMap[c.id]; });
+    });
+    var known = {};
+    branches.forEach(function(b){ b.children.forEach(function(c){ known[c.id] = true; }); });
+    BASE_BRANCHES.forEach(function(b){
+      var target = branches.filter(function(x){ return x.id === b.id; })[0];
+      b.children.forEach(function(c){
+        if (!known[c.id]) target.children.push({id:c.id, name:c.name, status:c.status});
+      });
+    });
+  })();
+
+  function save(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({branches:branches})); } catch(e){}
+  }
+
+  function findChild(id){
+    for (var i=0;i<branches.length;i++){
+      var b = branches[i];
+      for (var j=0;j<b.children.length;j++){
+        if (b.children[j].id === id) return {branch:b, item:b.children[j], index:j};
+      }
+    }
+    return null;
+  }
+
+  // ── 레이아웃 계산 ─────────────────────────
+  var ROW_H = 34, BRANCH_GAP = 30, BRANCH_X = 240, CHILD_X = 250;
+  var layout = {root:{x:0,y:0}, branchPos:{}, childPos:{}};
+
+  function computeLayout(){
+    ['left','right'].forEach(function(side){
+      var list = branches.filter(function(b){ return b.side === side; });
+      var blockHeights = list.map(function(b){ return Math.max(b.children.length,1) * ROW_H; });
+      var total = blockHeights.reduce(function(a,b){return a+b;},0) + BRANCH_GAP*(list.length-1);
+      var y = -total/2;
+      list.forEach(function(b, i){
+        var h = blockHeights[i];
+        var cy = y + h/2;
+        layout.branchPos[b.id] = {x: side==='left' ? -BRANCH_X : BRANCH_X, y: cy, side:side};
+        var n = b.children.length;
+        b.children.forEach(function(c, ci){
+          var cyChild = cy - (n-1)*ROW_H/2 + ci*ROW_H;
+          layout.childPos[c.id] = {x: side==='left' ? -BRANCH_X-CHILD_X : BRANCH_X+CHILD_X, y: cyChild};
+        });
+        y += h + BRANCH_GAP;
+      });
+    });
+  }
+
+  // ── 렌더링 ─────────────────────────
+  var inner = document.getElementById('canvasInner');
+  var svg = document.getElementById('linesSvg');
+  var selectedId = null;
+
+  function curve(x1,y1,x2,y2,color){
+    var mx = (x1+x2)/2;
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', 'M '+x1+' '+y1+' C '+mx+' '+y1+', '+mx+' '+y2+', '+x2+' '+y2);
+    p.setAttribute('stroke', color);
+    p.setAttribute('stroke-width', '2');
+    p.setAttribute('fill', 'none');
+    p.setAttribute('opacity', '0.55');
+    return p;
+  }
+
+  function render(){
+    computeLayout();
+    inner.querySelectorAll('.node').forEach(function(n){ n.remove(); });
+    svg.innerHTML = '';
+
+    var root = document.createElement('div');
+    root.className = 'node root';
+    root.style.left = '0px'; root.style.top = '0px';
+    root.textContent = '성환공구 ERP';
+    inner.appendChild(root);
+
+    branches.forEach(function(b){
+      var bp = layout.branchPos[b.id];
+      svg.appendChild(curve(0,0,bp.x,bp.y,b.color));
+
+      var bn = document.createElement('div');
+      bn.className = 'node branch';
+      bn.style.left = bp.x+'px'; bn.style.top = bp.y+'px';
+      bn.style.background = b.color;
+      bn.textContent = b.name;
+      bn.dataset.branch = b.id;
+      inner.appendChild(bn);
+
+      b.children.forEach(function(c){
+        var cp = layout.childPos[c.id];
+        svg.appendChild(curve(bp.x,bp.y,cp.x,cp.y,b.color));
+
+        var cn = document.createElement('div');
+        cn.className = 'node child' + (c.id===selectedId ? ' selected' : '');
+        cn.style.left = cp.x+'px'; cn.style.top = cp.y+'px';
+        cn.dataset.id = c.id;
+        cn.draggable = true;
+
+        var dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = STATUS_COLOR[c.status] || STATUS_COLOR.todo;
+        cn.appendChild(dot);
+
+        var txt = document.createElement('span');
+        txt.className = 'node-text';
+        txt.textContent = c.name;
+        cn.appendChild(txt);
+
+        inner.appendChild(cn);
+        wireChildNode(cn, txt);
+      });
+    });
+
+    var maxX = 0, maxY = 0;
+    Object.keys(layout.childPos).forEach(function(id){
+      var p = layout.childPos[id];
+      maxX = Math.max(maxX, Math.abs(p.x)+140);
+      maxY = Math.max(maxY, Math.abs(p.y)+30);
+    });
+    svg.setAttribute('width', maxX*2);
+    svg.setAttribute('height', maxY*2);
+    svg.style.left = (-maxX)+'px';
+    svg.style.top = (-maxY)+'px';
+    svg.setAttribute('viewBox', (-maxX)+' '+(-maxY)+' '+(maxX*2)+' '+(maxY*2));
+
+    renderCounts();
+    renderSelPanel();
+  }
+
+  function renderCounts(){
+    var done=0, prog=0, todo=0;
+    branches.forEach(function(b){ b.children.forEach(function(c){
+      if (c.status==='done') done++; else if (c.status==='progress') prog++; else todo++;
+    }); });
+    document.getElementById('cntDone').textContent = done;
+    document.getElementById('cntProgress').textContent = prog;
+    document.getElementById('cntTodo').textContent = todo;
+  }
+
+  function renderSelPanel(){
+    var panel = document.getElementById('selPanel');
+    if (!selectedId) { panel.innerHTML = '<div class="empty">칸을 클릭하면 이름 · 완성 상태를 여기서 바꿀 수 있습니다.</div>'; return; }
+    var found = findChild(selectedId);
+    if (!found) { selectedId = null; panel.innerHTML = '<div class="empty">칸을 클릭하면 이름 · 완성 상태를 여기서 바꿀 수 있습니다.</div>'; return; }
+    var labelMap = {done:'완성', progress:'진행중', todo:'미완성'};
+    panel.innerHTML =
+      '<div class="sel-name">'+found.item.name+'</div>' +
+      '<div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;">'+found.branch.name+'</div>' +
+      '<div class="sel-status-row"><button class="sel-status-btn" id="selStatusBtn" style="background:'+STATUS_COLOR[found.item.status]+';color:#fff;">'+labelMap[found.item.status]+'</button><span class="sel-hint">눌러서 상태 바꾸기</span></div>' +
+      '<div class="sel-hint">칸을 더블클릭하면 이름을 바로 고칠 수 있습니다.</div>';
+    document.getElementById('selStatusBtn').addEventListener('click', function(){
+      found.item.status = STATUS_NEXT[found.item.status];
+      save();
+      render();
+    });
+  }
+
+  // ── 칸 하나의 동작 (선택 · 이름수정 · 드래그) ─────────────────────────
+  var dragId = null;
+
+  function selectNode(id){
+    selectedId = id;
+    document.querySelectorAll('.node.child').forEach(function(n){
+      n.classList.toggle('selected', n.dataset.id === id);
+    });
+    renderSelPanel();
+  }
+
+  function wireChildNode(cn, txt){
+    cn.addEventListener('click', function(e){
+      if (txt.getAttribute('contenteditable') === 'true') return;
+      selectNode(cn.dataset.id);
+    });
+    txt.addEventListener('dblclick', function(e){
+      e.stopPropagation();
+      txt.setAttribute('contenteditable','true');
+      txt.focus();
+      var range = document.createRange();
+      range.selectNodeContents(txt);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    function finishEdit(){
+      if (txt.getAttribute('contenteditable') !== 'true') return;
+      txt.setAttribute('contenteditable','false');
+      var found = findChild(cn.dataset.id);
+      if (found) {
+        var val = txt.textContent.trim();
+        if (val) found.item.name = val;
+        save();
+      }
+      render();
+    }
+    txt.addEventListener('blur', finishEdit);
+    txt.addEventListener('keydown', function(e){
+      if (e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); finishEdit(); }
+      else if (e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); txt.setAttribute('contenteditable','false'); render(); }
+    });
+
+    cn.addEventListener('dragstart', function(e){
+      dragId = cn.dataset.id;
+      cn.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragId);
+    });
+    cn.addEventListener('dragend', function(){
+      cn.classList.remove('dragging');
+      document.querySelectorAll('.drop-target').forEach(function(n){ n.classList.remove('drop-target'); });
+    });
+    cn.addEventListener('dragover', function(e){
+      e.preventDefault();
+      if (!dragId || dragId === cn.dataset.id) return;
+      cn.classList.add('drop-target');
+    });
+    cn.addEventListener('dragleave', function(){ cn.classList.remove('drop-target'); });
+    cn.addEventListener('drop', function(e){
+      e.preventDefault();
+      cn.classList.remove('drop-target');
+      if (!dragId || dragId === cn.dataset.id) return;
+      dropOnto(dragId, cn.dataset.id, e.clientY);
+      dragId = null;
+    });
+  }
+
+  function dropOnto(srcId, targetId, clientY){
+    var src = findChild(srcId);
+    var tgt = findChild(targetId);
+    if (!src || !tgt) return;
+    src.branch.children.splice(src.index, 1);
+    if (src.branch.id === tgt.branch.id) {
+      var newIndex = tgt.branch.children.indexOf(tgt.item);
+      var targetEl = document.querySelector('.node.child[data-id="'+targetId+'"]');
+      var after = targetEl && (clientY > targetEl.getBoundingClientRect().top + targetEl.getBoundingClientRect().height/2);
+      tgt.branch.children.splice(after ? newIndex+1 : newIndex, 0, src.item);
+    } else {
+      var idx2 = tgt.branch.children.indexOf(tgt.item);
+      tgt.branch.children.splice(idx2+1, 0, src.item);
+    }
+    save();
+    render();
+  }
+
+  // 분류(branch) 노드 위에 놓으면 그 분류 맨 끝으로 이동
+  function wireBranchDrop(){
+    document.querySelectorAll('.node.branch').forEach(function(bn){
+      bn.addEventListener('dragover', function(e){ e.preventDefault(); });
+      bn.addEventListener('drop', function(e){
+        e.preventDefault();
+        if (!dragId) return;
+        var src = findChild(dragId);
+        var branchId = bn.dataset.branch;
+        var targetBranch = branches.filter(function(b){ return b.id===branchId; })[0];
+        if (!src || !targetBranch) return;
+        src.branch.children.splice(src.index, 1);
+        targetBranch.children.push(src.item);
+        dragId = null;
+        save();
+        render();
+      });
+    });
+  }
+
+  var origRender = render;
+  render = function(){ origRender(); wireBranchDrop(); };
+
+  // ── 확대/축소 · 이동 ─────────────────────────
+  var outer = document.getElementById('canvasOuter');
+  var zoom = 0.8, panX = 0, panY = 0;
+
+  function applyView(){
+    var h = outer.clientHeight/2, w = 0;
+    inner.style.transform = 'translate('+panX+'px,'+panY+'px) scale('+zoom+')';
+  }
+
+  function centerView(){
+    panX = outer.clientWidth/2;
+    panY = outer.clientHeight/2;
+    applyView();
+  }
+
+  document.getElementById('btnZoomIn').addEventListener('click', function(){ zoom = Math.min(zoom*1.2, 2.5); applyView(); });
+  document.getElementById('btnZoomOut').addEventListener('click', function(){ zoom = Math.max(zoom/1.2, 0.15); applyView(); });
+  document.getElementById('btnFit').addEventListener('click', function(){
+    var xs = [], ys = [];
+    Object.keys(layout.childPos).forEach(function(id){ xs.push(layout.childPos[id].x); ys.push(layout.childPos[id].y); });
+    if (!xs.length) { zoom = 0.8; centerView(); return; }
+    var maxX = Math.max.apply(null, xs.map(Math.abs)) + 150;
+    var maxY = Math.max.apply(null, ys.map(Math.abs)) + 60;
+    var scaleX = outer.clientWidth / (maxX*2);
+    var scaleY = outer.clientHeight / (maxY*2);
+    zoom = Math.max(0.15, Math.min(scaleX, scaleY, 1.1));
+    panX = outer.clientWidth/2;
+    panY = outer.clientHeight/2;
+    applyView();
+  });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if (!confirm('이름 · 색 · 순서를 고친 것을 모두 지우고 원래대로 되돌릴까요?')) return;
+    branches = cloneBase();
+    save();
+    selectedId = null;
+    render();
+    document.getElementById('btnFit').click();
+  });
+
+  var isPanning = false, panStartX, panStartY, panOrigX, panOrigY;
+  outer.addEventListener('mousedown', function(e){
+    if (e.target !== outer && e.target !== inner && e.target.tagName !== 'svg') return;
+    isPanning = true;
+    outer.classList.add('panning');
+    panStartX = e.clientX; panStartY = e.clientY;
+    panOrigX = panX; panOrigY = panY;
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!isPanning) return;
+    panX = panOrigX + (e.clientX - panStartX);
+    panY = panOrigY + (e.clientY - panStartY);
+    applyView();
+  });
+  window.addEventListener('mouseup', function(){ isPanning = false; outer.classList.remove('panning'); });
+
+  outer.addEventListener('wheel', function(e){
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    zoom = Math.max(0.15, Math.min(zoom * (e.deltaY < 0 ? 1.1 : 0.9), 2.5));
+    applyView();
+  }, {passive:false});
+
+  render();
+  centerView();
+  setTimeout(function(){ document.getElementById('btnFit').click(); }, 30);
+})();
+</script>
+</body>
+</html>
