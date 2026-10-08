@@ -3,138 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>문의 대장 · (주)성환공구</title>
 <style>
   *{box-sizing:border-box}
   body{margin:0;font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:#f4f5f7;color:#1f2937;font-size:15px}
   header{background:#1f3a5f;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
   header h1{margin:0;font-size:18px}
-  header a{color:#cfe0f5;font-size:13px;text-decoration:none}
+  header .r{display:flex;gap:14px;align-items:center;font-size:13px}
+  header a{color:#cfe0f5;text-decoration:none}
+  header button{padding:4px 10px;font-size:12px}
   main{max-width:1000px;margin:0 auto;padding:16px}
   .card{background:#fff;border:1px solid #dde1e7;border-radius:8px;padding:14px 16px;margin-bottom:16px}
   .card h2{margin:0 0 10px;font-size:15px}
-  .warn{background:#fff8e1;border:1px solid #f0d98a;color:#6b5400;font-size:13px;padding:8px 10px;border-radius:6px;margin-bottom:12px}
+  .note{background:#eef4fb;border:1px solid #c9dcf2;color:#1f3a5f;font-size:13px;padding:8px 10px;border-radius:6px;margin-bottom:12px}
   form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
   label{display:flex;flex-direction:column;font-size:12px;color:#4b5563;gap:3px}
   input,select{font:inherit;padding:7px 8px;border:1px solid #c5cbd3;border-radius:5px;background:#fff}
   .full{grid-column:1/-1}
   button{font:inherit;padding:8px 14px;border:0;border-radius:5px;background:#1f3a5f;color:#fff;cursor:pointer}
   button.ghost{background:#e5e7eb;color:#374151}
+  header button.ghost{background:#2d5080;color:#fff}
+  button:disabled{opacity:.5;cursor:default}
   .err{color:#b91c1c;font-size:13px;min-height:18px}
+  .ok{color:#166534;font-size:13px}
   .wrap{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:820px}
   th,td{border-bottom:1px solid #e5e7eb;padding:7px 8px;text-align:left;white-space:nowrap}
   th{background:#f0f2f5;font-size:12px;color:#4b5563}
   td select{padding:4px 6px;font-size:13px}
+  td.msg{white-space:normal;min-width:160px;max-width:280px;font-size:13px;color:#4b5563}
   .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px}
-  .b-none{background:#fee2e2;color:#b91c1c;font-weight:bold}   /* 계약 결과 미입력 */
+  .b-none{background:#fee2e2;color:#b91c1c;font-weight:bold}
   .b-yes{background:#dcfce7;color:#166534}
   .b-hold{background:#fef3c7;color:#92400e}
   .b-fail{background:#e5e7eb;color:#374151}
   .empty{color:#6b7280;text-align:center;padding:20px}
   .tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:#4b5563}
+  #login{max-width:380px;margin:40px auto}
+  #login form{grid-template-columns:1fr}
+  [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <header>
   <h1>📒 문의 대장</h1>
-  <a href="erp-map.html">← ERP 지도로</a>
+  <div class="r"><span id="who"></span><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-map.html">← ERP 지도로</a></div>
 </header>
+
 <main>
-  <section class="card">
-    <h2>새 문의 넣기</h2>
-    <div class="warn">이 화면은 이 브라우저(localStorage)에만 저장됩니다. 이름·연락처는 <b>가상 값만</b> 넣으세요. 실제 고객 정보는 넣지 마세요.</div>
-    <form id="f" novalidate>
-      <label>이름<input name="name" maxlength="40" placeholder="예: 가상김철수"></label>
-      <label>연락처<input name="phone" inputmode="tel" placeholder="예: 010-0000-0001"></label>
-      <label>관심 제품<select name="product">
-        <option value="">선택 안 함</option><option>절삭공구</option><option>측정공구</option><option>연삭·연마</option><option>수공구·전동공구</option><option>작업용품·안전용품</option><option>기타</option>
-      </select></label>
-      <label>경로 (어디서 알고 오셨나)<select name="source">
-        <option value="unknown">모름</option><option value="search">검색</option><option value="map">지도</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="phone">전화</option><option value="other">기타</option>
-      </select></label>
-      <label>응대 단계<select name="stage"><option>접수</option><option>연락중</option><option>상담완료</option></select></label>
-      <label>계약 결과<select name="result"><option value="">(비워둠)</option><option>계약</option><option>보류</option><option>실패</option></select></label>
-      <div class="full"><button type="submit">문의 추가</button> <span class="err" id="err"></span></div>
+  <!-- 로그인 (대표 계정만 문의를 볼 수 있다) -->
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">홈페이지로 들어온 문의에는 고객 이름·연락처가 있어서, 로그인한 대표 계정만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
     </form>
   </section>
 
-  <section class="card">
-    <div class="tools"><span id="count"></span><button class="ghost" id="clear" type="button">시험 데이터 전부 지우기</button></div>
-    <div class="wrap">
-      <table>
-        <thead><tr><th>접수일</th><th>이름</th><th>연락처</th><th>관심 제품</th><th>경로</th><th>응대 단계</th><th>계약 결과</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </section>
+  <div id="app" hidden>
+    <section class="card">
+      <h2>새 문의 넣기 <small style="font-weight:normal;color:#6b7280">(전화·방문 등 홈페이지 밖으로 온 문의를 직접 기록)</small></h2>
+      <form id="f" novalidate>
+        <label>이름<input name="name" maxlength="40"></label>
+        <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000"></label>
+        <label>관심 제품<select name="product">
+          <option value="">선택 안 함</option><option>절삭공구</option><option>측정공구</option><option>연삭·연마</option><option>수공구·전동공구</option><option>작업용품·안전용품</option><option>기타</option>
+        </select></label>
+        <label>경로 (어디서 알고 오셨나)<select name="source">
+          <option value="phone">전화</option><option value="search">검색</option><option value="map">지도</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="other">기타</option><option value="unknown">모름</option>
+        </select></label>
+        <label>응대 단계<select name="stage"><option>접수</option><option>연락중</option><option>상담완료</option></select></label>
+        <label>계약 결과<select name="result"><option value="">(비워둠)</option><option>계약</option><option>보류</option><option>실패</option></select></label>
+        <label class="full">메모<input name="message" maxlength="1000"></label>
+        <div class="full"><label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="consent"> 고객이 개인정보 수집에 동의했음 (전화·방문 문의는 구두 동의)</label></div>
+        <div class="full"><button type="submit" id="addbtn">문의 추가</button> <span class="err" id="err"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="tools"><span id="count">불러오는 중…</span><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>접수일</th><th>이름</th><th>연락처</th><th>관심 제품</th><th>경로</th><th>내용</th><th>응대 단계</th><th>계약 결과</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
-  var KEY = "sht-erp-inquiry-ledger";
+  // 공개용(anon) 키만 사용. 대표 계정으로 로그인해야 문의를 읽을 수 있다 (RLS).
+  var SUPABASE_URL = "https://dykljzknwcqncxusiqkf.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5a2xqemtud2NxbmN4dXNpcWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1ODM3NTEsImV4cCI6MjEwNTE1OTc1MX0.vo7fWD4xrTdZXjAG8NBUd1Dcmj7EjOLcYBPj7-ROQGM";
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   var SRC = {search:"검색", map:"지도", referral:"지인 소개", sns:"SNS", phone:"전화", other:"기타", unknown:"모름"};
   var STAGES = ["접수","연락중","상담완료"];
   var RESULTS = ["계약","보류","실패"];
   var $ = function(id){ return document.getElementById(id); };
-
-  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch(e){ return []; } }
-  function save(list){ try { localStorage.setItem(KEY, JSON.stringify(list)); } catch(e){ $("err").textContent = "이 브라우저에서는 저장이 막혀 있습니다."; } }
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
-  function today(){ var d = new Date(), p = function(n){ return (n<10?"0":"")+n; }; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
   function opts(arr, cur){ return arr.map(function(v){ return '<option'+(v===cur?' selected':'')+'>'+v+'</option>'; }).join(""); }
-
+  function fmtPhone(p){ return p.length===11 ? p.replace(/(\d{3})(\d{4})(\d{4})/,"$1-$2-$3") : p.length===10 ? p.replace(/(\d{2,3})(\d{3,4})(\d{4})/,"$1-$2-$3") : p; }
+  function kdate(iso){ var d = new Date(iso), p = function(n){ return (n<10?"0":"")+n; }; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
   function resultBadge(r){
     if (!r) return '<span class="badge b-none">미입력</span>';
-    var cls = r === "계약" ? "b-yes" : r === "보류" ? "b-hold" : "b-fail";
-    return '<span class="badge '+cls+'">'+esc(r)+'</span>';
+    return '<span class="badge '+(r==="계약"?"b-yes":r==="보류"?"b-hold":"b-fail")+'">'+esc(r)+'</span>';
   }
 
-  function render(){
-    var list = load();
+  function show(session){
+    var on = !!session;
+    $("login").hidden = on; $("app").hidden = !on; $("logout").hidden = !on;
+    $("who").textContent = on ? session.user.email : "";
+    if (on) load();
+  }
+
+  async function load(){
+    $("count").textContent = "불러오는 중…";
+    var r = await sb.from("inquiries").select("*").order("created_at", {ascending:false});
+    if (r.error){ $("count").textContent = ""; $("rows").innerHTML = '<tr><td colspan="8" class="empty">불러오지 못했습니다: '+esc(r.error.message)+' (이 계정에 열람 권한이 없을 수 있습니다)</td></tr>'; return; }
+    var list = r.data || [];
     $("count").textContent = "문의 " + list.length + "건";
-    if (!list.length){ $("rows").innerHTML = '<tr><td colspan="7" class="empty">아직 문의가 없습니다. 위에서 가상 문의를 하나 넣어 보세요.</td></tr>'; return; }
-    $("rows").innerHTML = list.slice().reverse().map(function(q){
+    if (!list.length){ $("rows").innerHTML = '<tr><td colspan="8" class="empty">아직 문의가 없습니다.</td></tr>'; return; }
+    $("rows").innerHTML = list.map(function(q){
       return '<tr>'+
-        '<td>'+esc(q.date)+'</td>'+
+        '<td>'+kdate(q.created_at)+'</td>'+
         '<td>'+esc(q.name)+'</td>'+
-        '<td>'+esc(q.phone)+'</td>'+
+        '<td>'+esc(fmtPhone(q.phone))+'</td>'+
         '<td>'+esc(q.product || "-")+'</td>'+
         '<td>'+esc(SRC[q.source] || "모름")+'</td>'+
+        '<td class="msg">'+esc(q.message || "")+'</td>'+
         '<td><select data-id="'+q.id+'" data-k="stage">'+opts(STAGES, q.stage)+'</select></td>'+
         '<td>'+resultBadge(q.result)+' <select data-id="'+q.id+'" data-k="result"><option value="">(비움)</option>'+opts(RESULTS, q.result)+'</select></td>'+
       '</tr>';
     }).join("");
   }
 
-  $("f").addEventListener("submit", function(e){
+  $("lf").addEventListener("submit", async function(e){
     e.preventDefault();
-    var f = e.target, name = f.name.value.trim(), phone = f.phone.value.trim();
-    if (!name){ $("err").textContent = "이름을 넣어주세요."; return; }
-    if (phone.replace(/\D/g,"").length < 9){ $("err").textContent = "연락처를 확인해주세요."; return; }
-    $("err").textContent = "";
-    var list = load();
-    list.push({ id: Date.now() + "" + Math.floor(Math.random()*1000), date: today(), name: name, phone: phone,
-      product: f.product.value, source: f.source.value, stage: f.stage.value, result: f.result.value });
-    save(list);
-    f.reset();
-    render();
+    var f = e.target; $("lerr").textContent = ""; $("lbtn").disabled = true;
+    var r = await sb.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+    $("lbtn").disabled = false; f.password.value = "";
+    if (r.error){ $("lerr").textContent = "로그인에 실패했습니다. 이메일·비밀번호를 확인해 주세요."; return; }
+    show(r.data.session);
   });
 
-  // 응대 단계 / 계약 결과는 서로 다른 칸 — 표에서 각각 따로 바꾼다
-  $("rows").addEventListener("change", function(e){
+  $("logout").addEventListener("click", async function(){ await sb.auth.signOut(); show(null); });
+  $("reload").addEventListener("click", load);
+
+  $("f").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var f = e.target, name = f.name.value.trim(), phone = f.phone.value.replace(/\D/g,"");
+    if (!name){ $("err").textContent = "이름을 넣어주세요."; return; }
+    if (phone.length < 9 || phone.length > 11){ $("err").textContent = "연락처는 숫자 9~11자리로 넣어주세요."; return; }
+    if (!f.consent.checked){ $("err").textContent = "개인정보 수집 동의 확인이 필요합니다."; return; }
+    $("err").textContent = ""; $("addbtn").disabled = true;
+    var r = await sb.from("inquiries").insert({
+      name: name, phone: phone, product: f.product.value || null, message: f.message.value.trim() || null,
+      source: f.source.value, stage: f.stage.value, result: f.result.value || null, consent: true
+    });
+    $("addbtn").disabled = false;
+    if (r.error){ $("err").textContent = "저장하지 못했습니다: " + r.error.message; return; }
+    f.reset(); load();
+  });
+
+  // 응대 단계 / 계약 결과는 서로 다른 칸 — 각각 따로 바꾼다
+  $("rows").addEventListener("change", async function(e){
     var t = e.target, id = t.getAttribute("data-id"), k = t.getAttribute("data-k");
     if (!id || !k) return;
-    var list = load();
-    list.forEach(function(q){ if (q.id === id) q[k] = t.value; });
-    save(list);
-    render();
+    var patch = {}; patch[k] = t.value || null;
+    var r = await sb.from("inquiries").update(patch).eq("id", id);
+    if (r.error) alert("바꾸지 못했습니다: " + r.error.message);
+    load();
   });
 
-  $("clear").addEventListener("click", function(){
-    if (confirm("이 브라우저에 저장된 문의 대장 시험 데이터를 모두 지울까요?")){ save([]); render(); }
-  });
-
-  render();
+  sb.auth.getSession().then(function(r){ show(r.data.session); });
 })();
 </script>
 </body>
