@@ -188,7 +188,7 @@
   </div>
 
   <div class="side-summary">
-    <div class="row"><span><span class="dot dot-done"></span>완성</span><b>6</b></div>
+    <div class="row"><span><span class="dot dot-done"></span>완성</span><b>7</b></div>
     <div class="row"><span><span class="dot dot-progress"></span>진행중</span><b>0</b></div>
     <div class="row"><span><span class="dot dot-empty"></span>미완성</span><b>45</b></div>
   </div>
@@ -209,7 +209,7 @@
     <div class="side-cat">③ 물건 <span class="frac">0/8</span></div>
     <div class="side-cat">④ 사람 <span class="frac">1/6</span></div>
     <div class="side-cat">⑤ 기한 <span class="frac">0/8</span></div>
-    <div class="side-cat">⑥ 알리기 <span class="frac">2/6</span></div>
+    <div class="side-cat">⑥ 알리기 <span class="frac">3/7</span></div>
   </nav>
 
   <nav class="side-nav">
@@ -256,7 +256,7 @@
     <div class="hero-left">
       <h2>📖 ERP 지도</h2>
       <div class="sub">완성된 설계도가 아니라, 일주일에 한 칸씩 채워가는 판입니다.</div>
-      <div class="hero-progress-num">완성 <span>6</span> / 51</div>
+      <div class="hero-progress-num">완성 <span>7</span> / 52</div>
       <div class="hero-bar-track"><div class="hero-bar-fill" style="width:12%"></div></div>
       <div class="hero-note">칸이 비어 있는 것은 실패가 아니라 순서입니다.</div>
       <div class="hero-this-week">
@@ -596,7 +596,7 @@
   <section class="cat">
     <div class="cat-header">
       <div><h3>⑥ 알리기</h3><div class="sub">홈페이지 · 광고 · 콘텐츠 — 9/17 3회차에서 다룸</div></div>
-      <div class="cat-count">2 / 6</div>
+      <div class="cat-count">3 / 7</div>
     </div>
     <div class="tile-grid">
       <a class="tile is-done" href="https://company-web-bge.pages.dev/" target="_blank" rel="noopener">
@@ -609,6 +609,12 @@
         <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
         <div class="tile-name strong">문의 대장</div>
         <div class="tile-loc">홈페이지 문의 → 수파베이스 → 대표 로그인 후 확인·응대 단계·계약 결과 기록</div>
+        <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
+      </a>
+      <a class="tile is-done" data-id="grid-6-customer-ledger" href="erp-inquiry-ledger.html#cust">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">고객 대장</div>
+        <div class="tile-loc">연락처가 같은 문의를 한 고객으로 묶음 · 처음 알게 된 경로 · 문의·계약 건수</div>
         <div class="tile-badges"><span class="badge badge-mid">중</span><span class="badge badge-auto">자동</span></div>
       </a>
       <div class="tile">
@@ -664,10 +670,13 @@
   grids.forEach(function(grid, gi){
     if (!grid.dataset.gridId) grid.dataset.gridId = 'grid-' + gi;
   });
-  document.querySelectorAll('.tile').forEach(function(tile, i){
+  // 번호가 미리 붙은 타일(data-id)은 세지 않는다 — 새 타일을 끼워도 기존 타일 번호(이름·색·순서 저장 기록)가 밀리지 않게
+  var autoIdx = 0;
+  document.querySelectorAll('.tile').forEach(function(tile){
     if (!tile.dataset.id) {
       var grid = tile.closest('.tile-grid');
-      tile.dataset.id = grid.dataset.gridId + '-' + i;
+      tile.dataset.id = grid.dataset.gridId + '-' + autoIdx;
+      autoIdx++;
     }
   });
 

@@ -3,3 +3,6 @@
 .claude/
 erp-map-backup-0919.html
 erp-hw2-report.html
+
+# 내부 메모는 웹에 올리지 않는다
+*.md

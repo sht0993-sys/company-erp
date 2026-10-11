@@ -42,6 +42,15 @@
   .tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:#4b5563}
   #login{max-width:380px;margin:40px auto}
   #login form{grid-template-columns:1fr}
+  .tabs{display:flex;gap:6px;margin-bottom:12px}
+  .tabs button{background:#e5e7eb;color:#374151}
+  .tabs button.on{background:#1f3a5f;color:#fff}
+  .cno{font-size:11px;color:#6b7280}
+  tr.cust{cursor:pointer}
+  tr.cust:hover{background:#f7f9fc}
+  tr.detail td{background:#f9fafb;white-space:normal;font-size:13px}
+  table.sub{min-width:0;font-size:13px;margin:4px 0}
+  .tag-diff{display:inline-block;background:#e0ecff;color:#1d4ed8;border-radius:10px;font-size:11px;padding:1px 7px;margin-left:4px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -64,16 +73,35 @@
   </section>
 
   <div id="app" hidden>
+    <div class="tabs">
+      <button type="button" id="tabbtn-inq" class="on">문의 대장</button>
+      <button type="button" id="tabbtn-cust">고객 대장</button>
+    </div>
+
+    <div id="tab-cust" hidden>
+      <section class="card">
+        <div class="note">연락처가 같은 문의는 한 고객(C-번호)으로 묶입니다. 「처음 알게 된 경로」는 그 고객의 첫 문의 경로이고, 나중에 다른 경로로 문의해도 바뀌지 않습니다. 줄을 누르면 그 고객의 문의가 펼쳐집니다.</div>
+        <div class="tools"><span id="ccount"></span></div>
+        <div class="wrap">
+          <table>
+            <thead><tr><th>고객번호</th><th>이름</th><th>처음 알게 된 경로</th><th>문의 건수</th><th>계약 건수</th></tr></thead>
+            <tbody id="crows"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="tab-inq">
     <section class="card">
       <h2>새 문의 넣기 <small style="font-weight:normal;color:#6b7280">(전화·방문 등 홈페이지 밖으로 온 문의를 직접 기록)</small></h2>
       <form id="f" novalidate>
         <label>이름<input name="name" maxlength="40"></label>
         <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000"></label>
         <label>관심 제품<select name="product">
-          <option value="">선택 안 함</option><option>절삭공구</option><option>측정공구</option><option>연삭·연마</option><option>수공구·전동공구</option><option>작업용품·안전용품</option><option>기타</option>
+          <option value="">선택하지 않음</option><option>공작기기</option><option>측정공구류</option><option>전동공구류</option><option>절삭공구</option><option>척(CHUCK) &amp; 아바(ARBOR)</option><option>스페셜 공구 제작(OEM)</option><option>기타</option>
         </select></label>
         <label>경로 (어디서 알고 오셨나)<select name="source">
-          <option value="phone">전화</option><option value="search">검색</option><option value="map">지도</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="other">기타</option><option value="unknown">모름</option>
+          <option value="search">검색(네이버·구글 등)</option><option value="map">지도(네이버·카카오 지도)</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="phone" selected>전화</option><option value="other">기타</option><option value="unknown">모르겠음</option>
         </select></label>
         <label>응대 단계<select name="stage"><option>접수</option><option>연락중</option><option>상담완료</option></select></label>
         <label>계약 결과<select name="result"><option value="">(비워둠)</option><option>계약</option><option>보류</option><option>실패</option></select></label>
@@ -87,11 +115,12 @@
       <div class="tools"><span id="count">불러오는 중…</span><button class="ghost" id="reload" type="button">새로고침</button></div>
       <div class="wrap">
         <table>
-          <thead><tr><th>접수일</th><th>이름</th><th>연락처</th><th>관심 제품</th><th>경로</th><th>내용</th><th>응대 단계</th><th>계약 결과</th></tr></thead>
+          <thead><tr><th>접수일</th><th>번호</th><th>이름</th><th>연락처</th><th>관심 제품</th><th>경로</th><th>내용</th><th>응대 단계</th><th>계약 결과</th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
     </section>
+    </div><!-- /tab-inq -->
   </div>
 </main>
 
@@ -103,7 +132,7 @@
   var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5a2xqemtud2NxbmN4dXNpcWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1ODM3NTEsImV4cCI6MjEwNTE1OTc1MX0.vo7fWD4xrTdZXjAG8NBUd1Dcmj7EjOLcYBPj7-ROQGM";
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  var SRC = {search:"검색", map:"지도", referral:"지인 소개", sns:"SNS", phone:"전화", other:"기타", unknown:"모름"};
+  var SRC = {search:"검색", map:"지도", referral:"지인 소개", sns:"SNS", phone:"전화", other:"기타", unknown:"모르겠음"};   // 홈페이지 문의 폼과 같은 이름
   var STAGES = ["접수","연락중","상담완료"];
   var RESULTS = ["계약","보류","실패"];
   var $ = function(id){ return document.getElementById(id); };
@@ -120,23 +149,71 @@
     var on = !!session;
     $("login").hidden = on; $("app").hidden = !on; $("logout").hidden = !on;
     $("who").textContent = on ? session.user.email : "";
-    if (on) load();
+    if (on){ applyHash(); load(); }
   }
 
+  function pad4(n){ return ("0000"+n).slice(-4); }
+  function cno(id){ return "C-"+pad4(id); }   // 고객번호 (customers.id 에서 만든 화면용 번호)
+  function qno(id){ return "Q-"+pad4(id); }   // 접수번호 (inquiries.id)
+
+  var openCust = {};   // 펼쳐 둔 고객
+  var cache = null;    // 마지막으로 불러온 고객·문의 (줄을 펼칠 때는 다시 불러오지 않고 이걸로 그린다)
+
   async function load(){
-    $("count").textContent = "불러오는 중…";
+    $("count").textContent = "불러오는 중…"; $("ccount").textContent = "불러오는 중…";
     var r = await sb.from("inquiries").select("*").order("created_at", {ascending:false});
-    if (r.error){ $("count").textContent = ""; $("rows").innerHTML = '<tr><td colspan="8" class="empty">불러오지 못했습니다: '+esc(r.error.message)+' (이 계정에 열람 권한이 없을 수 있습니다)</td></tr>'; return; }
-    var list = r.data || [];
+    var c = await sb.from("customers").select("*").order("id", {ascending:false});
+    if (r.error || c.error){
+      var msg = esc((r.error || c.error).message);
+      $("count").textContent = ""; $("ccount").textContent = "";
+      $("rows").innerHTML = '<tr><td colspan="9" class="empty">불러오지 못했습니다: '+msg+' (이 계정에 열람 권한이 없을 수 있습니다)</td></tr>';
+      $("crows").innerHTML = '<tr><td colspan="5" class="empty">불러오지 못했습니다: '+msg+'</td></tr>';
+      return;
+    }
+    cache = { cust: c.data || [], inq: r.data || [] };
+    renderInq(cache.inq);
+    renderCust(cache.cust, cache.inq);
+  }
+
+  // 고객 대장: 고객번호 · 이름 · 처음 알게 된 경로 · 문의 건수 · 계약 건수
+  function renderCust(custs, inqs){
+    $("ccount").textContent = "고객 " + custs.length + "명";
+    if (!custs.length){ $("crows").innerHTML = '<tr><td colspan="5" class="empty">아직 고객이 없습니다.</td></tr>'; return; }
+    var by = {};
+    inqs.forEach(function(q){ (by[q.customer_id] = by[q.customer_id] || []).push(q); });
+    $("crows").innerHTML = custs.map(function(cu){
+      var qs = (by[cu.id] || []).slice().sort(function(a,b){ return new Date(a.created_at) - new Date(b.created_at); });
+      var contracts = qs.filter(function(q){ return q.result === "계약"; }).length;
+      var open = !!openCust[cu.id];
+      var html = '<tr class="cust" data-cid="'+cu.id+'">'+
+        '<td>'+(open?'▾':'▸')+' '+cno(cu.id)+'</td>'+
+        '<td>'+esc(cu.name)+'<div class="cno">'+esc(fmtPhone(cu.phone))+'</div></td>'+
+        '<td>'+esc(SRC[cu.first_source] || "모르겠음")+'</td>'+
+        '<td>'+qs.length+'</td>'+
+        '<td>'+contracts+'</td></tr>';
+      if (open){
+        html += '<tr class="detail"><td colspan="5"><table class="sub"><thead><tr><th>접수일</th><th>접수번호</th><th>문의 이름</th><th>관심 제품</th><th>이 문의의 경로</th><th>응대 단계</th><th>계약 결과</th></tr></thead><tbody>'+
+          qs.map(function(q){
+            return '<tr><td>'+kdate(q.created_at)+'</td><td>'+qno(q.id)+'</td><td>'+esc(q.name)+(q.name!==cu.name?'<span class="tag-diff">고객 이름과 다름</span>':'')+'</td><td>'+esc(q.product||"-")+'</td>'+
+              '<td>'+esc(SRC[q.source]||"모르겠음")+(q.source!==cu.first_source?'<span class="tag-diff">첫 경로와 다름</span>':'')+'</td>'+
+              '<td>'+esc(q.stage)+'</td><td>'+resultBadge(q.result)+'</td></tr>';
+          }).join("")+'</tbody></table></td></tr>';
+      }
+      return html;
+    }).join("");
+  }
+
+  function renderInq(list){
     $("count").textContent = "문의 " + list.length + "건";
-    if (!list.length){ $("rows").innerHTML = '<tr><td colspan="8" class="empty">아직 문의가 없습니다.</td></tr>'; return; }
+    if (!list.length){ $("rows").innerHTML = '<tr><td colspan="9" class="empty">아직 문의가 없습니다.</td></tr>'; return; }
     $("rows").innerHTML = list.map(function(q){
       return '<tr>'+
         '<td>'+kdate(q.created_at)+'</td>'+
+        '<td>'+qno(q.id)+'<div class="cno">'+(q.customer_id?cno(q.customer_id):"")+'</div></td>'+
         '<td>'+esc(q.name)+'</td>'+
         '<td>'+esc(fmtPhone(q.phone))+'</td>'+
         '<td>'+esc(q.product || "-")+'</td>'+
-        '<td>'+esc(SRC[q.source] || "모름")+'</td>'+
+        '<td>'+esc(SRC[q.source] || "모르겠음")+'</td>'+
         '<td class="msg">'+esc(q.message || "")+'</td>'+
         '<td><select data-id="'+q.id+'" data-k="stage">'+opts(STAGES, q.stage)+'</select></td>'+
         '<td>'+resultBadge(q.result)+' <select data-id="'+q.id+'" data-k="result"><option value="">(비움)</option>'+opts(RESULTS, q.result)+'</select></td>'+
@@ -155,6 +232,21 @@
 
   $("logout").addEventListener("click", async function(){ await sb.auth.signOut(); show(null); });
   $("reload").addEventListener("click", load);
+
+  function tab(which){
+    $("tab-inq").hidden = which !== "inq"; $("tab-cust").hidden = which !== "cust";
+    $("tabbtn-inq").className = which === "inq" ? "on" : ""; $("tabbtn-cust").className = which === "cust" ? "on" : "";
+  }
+  // 주소 끝이 #cust 이면 고객 대장 탭으로 시작 (ERP 지도의 「고객 대장」 타일)
+  function applyHash(){ tab(location.hash === "#cust" ? "cust" : "inq"); }
+  window.addEventListener("hashchange", applyHash);
+  $("tabbtn-inq").addEventListener("click", function(){ tab("inq"); });
+  $("tabbtn-cust").addEventListener("click", function(){ tab("cust"); });
+  $("crows").addEventListener("click", function(e){
+    var tr = e.target.closest("tr.cust"); if (!tr) return;
+    var id = tr.getAttribute("data-cid"); openCust[id] = !openCust[id];
+    if (cache) renderCust(cache.cust, cache.inq); else load();
+  });
 
   $("f").addEventListener("submit", async function(e){
     e.preventDefault();
