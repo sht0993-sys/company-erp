@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>고객 대장 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+</head>
+<body data-screen="cust">
+<header>
+  <h1>👤 고객 대장</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-inquiry-ledger.html">문의 대장</a><a href="erp-customers.html" class="on">고객 대장</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <!-- 로그인 (대표 계정만 고객을 볼 수 있다) -->
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">고객 이름·연락처가 있어서, 로그인한 대표 계정만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <section class="card">
+      <div class="note">연락처가 같은 문의는 한 고객(C-번호)으로 묶입니다. 「처음 알게 된 경로」는 그 고객의 첫 문의 경로이고, 나중에 다른 경로로 문의해도 바뀌지 않습니다. 줄을 누르면 그 고객의 문의가 펼쳐집니다. 문의를 새로 넣거나 계약 결과를 바꾸는 곳은 「문의 대장」입니다.</div>
+      <div class="tools"><span id="ccount">불러오는 중…</span><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>고객번호</th><th>이름</th><th>처음 알게 된 경로</th><th>문의 건수</th><th>계약 건수</th></tr></thead>
+          <tbody id="crows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-ledger.js"></script>
+</body>
+</html>

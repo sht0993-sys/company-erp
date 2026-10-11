@@ -1,0 +1,44 @@
+/* 문의 대장 · 고객 대장 공용 스타일 */
+*{box-sizing:border-box}
+body{margin:0;font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:#f4f5f7;color:#1f2937;font-size:15px}
+header{background:#1f3a5f;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:18px}
+header .r{display:flex;gap:14px;align-items:center;font-size:13px;flex-wrap:wrap}
+header a{color:#cfe0f5;text-decoration:none}
+header a.on{color:#fff;font-weight:bold;border-bottom:2px solid #fff}
+header button{padding:4px 10px;font-size:12px}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid #dde1e7;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.card h2{margin:0 0 10px;font-size:15px}
+.note{background:#eef4fb;border:1px solid #c9dcf2;color:#1f3a5f;font-size:13px;padding:8px 10px;border-radius:6px;margin-bottom:12px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+label{display:flex;flex-direction:column;font-size:12px;color:#4b5563;gap:3px}
+input,select{font:inherit;padding:7px 8px;border:1px solid #c5cbd3;border-radius:5px;background:#fff}
+.full{grid-column:1/-1}
+button{font:inherit;padding:8px 14px;border:0;border-radius:5px;background:#1f3a5f;color:#fff;cursor:pointer}
+button.ghost{background:#e5e7eb;color:#374151}
+header button.ghost{background:#2d5080;color:#fff}
+button:disabled{opacity:.5;cursor:default}
+.err{color:#b91c1c;font-size:13px;min-height:18px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:820px}
+th,td{border-bottom:1px solid #e5e7eb;padding:7px 8px;text-align:left;white-space:nowrap}
+th{background:#f0f2f5;font-size:12px;color:#4b5563}
+td select{padding:4px 6px;font-size:13px}
+td.msg{white-space:normal;min-width:160px;max-width:280px;font-size:13px;color:#4b5563}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px}
+.b-none{background:#fee2e2;color:#b91c1c;font-weight:bold}
+.b-yes{background:#dcfce7;color:#166534}
+.b-hold{background:#fef3c7;color:#92400e}
+.b-fail{background:#e5e7eb;color:#374151}
+.empty{color:#6b7280;text-align:center;padding:20px}
+.tools{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:#4b5563}
+#login{max-width:380px;margin:40px auto}
+#login form{grid-template-columns:1fr}
+.cno{font-size:11px;color:#6b7280}
+tr.cust{cursor:pointer}
+tr.cust:hover{background:#f7f9fc}
+tr.detail td{background:#f9fafb;white-space:normal;font-size:13px}
+table.sub{min-width:0;font-size:13px;margin:4px 0}
+.tag-diff{display:inline-block;background:#e0ecff;color:#1d4ed8;border-radius:10px;font-size:11px;padding:1px 7px;margin-left:4px}
+[hidden]{display:none!important}
