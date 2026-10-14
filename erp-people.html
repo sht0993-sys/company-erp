@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사람 칸 그림 · 성환공구</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2; --border:#DFD2B4;
+    --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --high:#A23A2E; --high-bg:#F5DAD3; --mid:#946A17; --mid-bg:#F1E3C2;
+    --low:#556B4C; --low-bg:#DEE7D5; --auto:#2C6E68; --auto-bg:#D9EAE7;
+    --human:#6B4F9E; --human-bg:#E7DEF3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 16px 60px}
+  a.back{color:var(--ink-soft);font-size:13px;text-decoration:none}
+  a.back:hover{color:var(--accent)}
+  h1{font-family:"Noto Serif KR",serif;font-weight:900;font-size:26px;margin:8px 0 4px}
+  .lead{color:var(--ink-soft);margin:0 0 18px;font-size:14.5px}
+  h2{font-family:"Noto Serif KR",serif;font-size:18px;margin:30px 0 10px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+
+  /* 뿌리: 조직 */
+  .root{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:12px;padding:14px 16px}
+  .root b{font-size:15px}
+  .root .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .root .chip{background:#141C31;border:1px solid #33436A;border-radius:999px;padding:3px 10px;font-size:12.5px}
+  .root .st{margin-left:auto}
+
+  /* 여섯 줄 */
+  .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px;position:relative}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 11px;display:flex;flex-direction:column;gap:7px;position:relative}
+  .step.warn{border:2px solid var(--accent)}
+  .step .no{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}
+  .step h3{margin:0;font-size:16px}
+  .step .what{font-size:12.5px;color:var(--ink-soft)}
+  .step .now{font-size:12.5px;border-top:1px dashed var(--border);padding-top:7px}
+  .step .now a{color:var(--auto)}
+  .warn-tag{position:absolute;top:-10px;right:8px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+  .arrow{position:absolute;right:-8px;top:22px;color:var(--muted);font-size:13px;z-index:1}
+
+  .st{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap}
+  .st.yes{background:var(--auto-bg);color:var(--auto)}
+  .st.no{background:var(--high-bg);color:var(--high)}
+  .st.unk{background:var(--mid-bg);color:var(--mid)}
+  .st.lock{background:var(--human-bg);color:var(--human)}
+
+  /* 전체에 걸치는 둘 */
+  .span{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .bar{border-radius:10px;padding:9px 14px;font-size:13.5px;display:flex;gap:10px;align-items:center}
+  .bar.due{background:var(--mid-bg);color:#5c4410}
+  .bar.lk{background:var(--human-bg);color:#3f2c66}
+  .bar b{white-space:nowrap}
+
+  .note{font-size:13px;color:var(--ink-soft);margin-top:10px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:center}
+  th{background:var(--surface-alt);font-weight:700}
+  td:first-child,th:first-child{text-align:left;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  .tbl-wrap{overflow-x:auto}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .two .card h3{margin:0 0 6px;font-size:15px}
+  .two ul{margin:0;padding-left:18px;font-size:13.5px}
+  .success{background:var(--auto-bg);border:1px solid #b9d6d2;border-radius:12px;padding:14px 16px;font-size:14.5px}
+  .success b{color:var(--auto)}
+  .foot{font-size:12px;color:var(--muted);margin-top:26px}
+
+  @media (max-width:860px){
+    .flow{grid-template-columns:1fr 1fr}
+    .arrow{display:none}
+    .span,.two{grid-template-columns:1fr}
+    .root .st{margin-left:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="erp-map.html">← ERP 지도로</a>
+  <h1>사람 칸 그림 한 장</h1>
+  <p class="lead">한 사람이 성환공구를 지나가는 순서대로 놓고, 지금 ERP에 <b>있음 · 없음 · 모름</b>만 적었습니다.<br>
+  인사 정보는 사람마다 보는 범위가 달라서, 다른 칸과 따로 묶고 따로 잠급니다.</p>
+
+  <!-- 뿌리 -->
+  <div class="root">
+    <b>뿌리 · 조직</b>
+    <div class="chips">
+      <span class="chip">명부 12명 (직원 7 · 배송기사 5)</span>
+      <span class="chip">조직도: 대표 / 사무실·영업·배송(차장) / 경리부(경리과장)</span>
+      <span class="chip">결재선</span>
+    </div>
+    <span class="st yes">있음 · 전자결재 안에</span>
+  </div>
+
+  <!-- 여섯 줄 -->
+  <div class="flow">
+    <div class="step">
+      <span class="arrow">▶</span>
+      <span class="no">1</span><h3>뽑는다</h3>
+      <div class="what">채용 결정 → 공고 → 지원 → 면접 → 선발</div>
+      <div class="now"><span class="st no">없음</span><br>대표님 머릿속 · 전화</div>
+    </div>
+    <div class="step warn">
+      <span class="warn-tag">자주 빠짐</span><span class="arrow">▶</span>
+      <span class="no">2</span><h3>들어온다</h3>
+      <div class="what">근로계약 → 4대보험 → 계정(ERP · 밥톡) → 첫 주 → 30일 면담 → 수습 끝나는 날</div>
+      <div class="now"><span class="st no">없음</span><br>합격하면 끝난 줄 앎</div>
+    </div>
+    <div class="step">
+      <span class="arrow">▶</span>
+      <span class="no">3</span><h3>일한다</h3>
+      <div class="what">근태 · 연차 · 법정 교육 · 지게차 등 자격</div>
+      <div class="now">
+        <span class="st yes">있음</span> 연차 · <a href="erp-approvals.html#leave">잔여 자동 차감</a><br>
+        <span class="st no">없음</span> 근태 · 자격증<br>
+        <span class="st unk">모름</span> 법정 교육
+      </div>
+    </div>
+    <div class="step">
+      <span class="arrow">▶</span>
+      <span class="no">4</span><h3>받는다 🔒</h3>
+      <div class="what">급여(매월 5일) · 명세서 · 통상시급</div>
+      <div class="now"><span class="st lock">대표만</span><br>ERP 밖에서 따로 관리</div>
+    </div>
+    <div class="step warn">
+      <span class="warn-tag">자주 빠짐</span><span class="arrow">▶</span>
+      <span class="no">5</span><h3>계약 · 평가</h3>
+      <div class="what">만기 전에 평가를 보고 재계약을 정한다 (특히 배송기사 계약)</div>
+      <div class="now"><span class="st no">없음</span><br>만기 날짜만 보고 미룸</div>
+    </div>
+    <div class="step">
+      <span class="no">6</span><h3>나간다</h3>
+      <div class="what">퇴사 처리 → 인수인계(거래처 · 미수금) → 계정 닫기</div>
+      <div class="now"><span class="st no">없음</span><br>ERP · 밥톡 · 공구erp 계정 닫기 기록 없음</div>
+    </div>
+  </div>
+
+  <!-- 여섯 줄 전체에 걸치는 둘 -->
+  <div class="span">
+    <div class="bar due"><b>⏰ 기한 · 점검</b> 수습 · 계약 만기 · 연차 · 교육 날짜를 세서 배지로 → ③ 노무 4줄</div>
+    <div class="bar lk"><b>🔐 잠근다</b> 급여 · 개인정보는 수파베이스가 직접 막는다 → ⑤ 사람 정보 잠그기</div>
+  </div>
+  <p class="note">6 나간다의 마지막 단계인 「계정 닫기」는 ⑤ 허용표와 이어집니다. 나간 사람은 그날로 ERP · 밥톡을 못 열어야 합니다.</p>
+
+  <!-- 접속한 사람별 -->
+  <h2>「접속한 사람」에 따라 보이는 것</h2>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>접속한 사람</th><th>명부</th><th>연차 잔여</th><th>연차 부여 일수 고치기</th><th>급여 · 명세서</th></tr>
+    <tr><td>대표</td><td>● 전체</td><td>● 전체</td><td>●</td><td>●</td></tr>
+    <tr><td>경리과장 · 경리</td><td>● 전체</td><td>● 전체</td><td>●</td><td>— 🔒</td></tr>
+    <tr><td>차장 (부서장)</td><td>● 전체</td><td>● 전체</td><td>—</td><td>— 🔒</td></tr>
+    <tr><td>영업 · 배송기사</td><td>본인만</td><td>본인만</td><td>—</td><td>— 🔒</td></tr>
+  </table>
+  </div>
+  <p class="note">지금 전자결재의 연차 잔여는 이 표대로 나뉘어 보입니다. 다만 브라우저가 화면을 가리는 것뿐이라, 진짜 잠금은 ⑤에서 수파베이스로 겁니다. 명부 칸은 아직 없어서, 그 열은 앞으로 이렇게 보이게 할 계획입니다.</p>
+
+  <!-- 칸만 만들면 멈춘다 -->
+  <h2>⚠ 칸만 만들면 멈춘다 · 성환공구에서 멈출 곳</h2>
+  <div class="two">
+    <div class="card">
+      <h3>일이 칸 밖에서 돌 곳</h3>
+      <ul>
+        <li>채용: 지인 소개 · 전화로 뽑아서 화면을 안 거침</li>
+        <li>입사 서류: 근로계약서가 종이 · 파일로만 남음</li>
+        <li>배송기사: 개인 폰 · 계약 만기를 대표님만 기억함</li>
+        <li>퇴사: 공구erp · 밥톡 계정이 그대로 열려 있음</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>배지는 ERP가, 판단은 노무사가</h3>
+      <ul>
+        <li><b>ERP · AI가 하는 일</b>: 날짜를 세고, 빈칸을 찾고, 빨간 배지를 띄움</li>
+        <li><b>대표 · 노무사가 하는 일</b>: 그것이 문제인지 판단하고 서명함</li>
+        <li>그래서 이 화면에는 「합법 · 위법」이라는 말을 쓰지 않습니다</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>성공 기준 한 줄 <span class="st unk">제안</span></h2>
+  <div class="success">
+    <b>다음 입사자 1명을 경리과장이 입사일부터 30일 동안 이 칸 하나로 끝내면 성공.</b><br>
+    <span style="font-size:13px;color:var(--ink-soft)">계약서 · 4대보험 · 계정 만들기 · 첫 주 · 30일 면담까지 전부 이 칸에서 체크합니다. 2 「들어온다」부터 만드는 이유입니다.</span>
+  </div>
+
+  <p class="foot">이 화면은 법률 자문이 아닙니다. 노무 기준은 실제로 적용하기 전에 노무사에게 확인하십시오. 실제 직원 이름과 월급은 넣지 않았습니다.</p>
+</div>
+</body>
+</html>
