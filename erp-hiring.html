@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>채용 · 첫 30일 · 성환공구</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F6F0E4; --surface:#FFFDF8; --surface-alt:#EFE6D2; --border:#DFD2B4;
+    --ink:#1E2A44; --ink-soft:#4B5670; --muted:#8A7F66; --accent:#C1692F;
+    --high:#A23A2E; --high-bg:#F5DAD3; --mid:#946A17; --mid-bg:#F1E3C2;
+    --auto:#2C6E68; --auto-bg:#D9EAE7; --human:#6B4F9E; --human-bg:#E7DEF3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",sans-serif;line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 16px 60px}
+  a.back{color:var(--ink-soft);font-size:13px;text-decoration:none;margin-right:12px}
+  a.back:hover{color:var(--accent)}
+  h1{font-family:"Noto Serif KR",serif;font-weight:900;font-size:26px;margin:8px 0 4px}
+  .lead{color:var(--ink-soft);margin:0 0 14px;font-size:14.5px}
+  h2{font-family:"Noto Serif KR",serif;font-size:18px;margin:30px 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .count{font-family:"Noto Sans KR",sans-serif;font-size:12px;font-weight:700;background:var(--mid-bg);color:var(--mid);border-radius:999px;padding:2px 10px}
+
+  .q{display:inline-block;background:var(--mid-bg);color:var(--mid);font-weight:700;font-size:12px;border-radius:5px;padding:0 6px;white-space:nowrap}
+  .fact{display:inline-block;background:var(--auto-bg);color:var(--auto);font-weight:700;font-size:12px;border-radius:5px;padding:0 6px;white-space:nowrap}
+
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:720px}
+  th,td{padding:9px 11px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+  th{background:var(--surface-alt);font-weight:700;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  td.step{white-space:nowrap;font-weight:700}
+  td.step small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+  tr.pre td{background:#FBF6EA}
+  .note{font-size:13px;color:var(--ink-soft);margin:8px 2px 0}
+
+  .pick{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:16px}
+  .pick .tag{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:6px}
+  .pick .line{font-size:16px;font-weight:700}
+  .pick .why{font-size:13.5px;color:var(--ink-soft);margin-top:8px}
+  .others{font-size:13px;color:var(--muted);margin-top:8px}
+
+  .map-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px}
+  .map-wrap svg{display:block;width:100%;min-width:760px;height:auto}
+  svg text{font-family:"Noto Sans KR",sans-serif}
+
+  ol.ask{margin:0;padding-left:22px;font-size:14px}
+  ol.ask li{margin:3px 0}
+  .warn{background:var(--high-bg);color:#6e2219;border-radius:10px;padding:10px 14px;font-size:13.5px;margin-top:10px}
+  .foot{font-size:12px;color:var(--muted);margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="erp-map.html">← ERP 지도로</a><a class="back" href="erp-people.html">← 사람 칸 그림</a>
+  <h1>뽑는다 · 들어온다 한 장</h1>
+  <p class="lead">채용 5단계와 입사 첫 30일을 한 줄로 이었습니다. 각 단계에 <b>누가 · 무엇이 남나 · 어디에</b>를 적었습니다.<br>
+  <span class="fact">확인</span>은 대표님이 말씀하신 것이거나 지금 ERP에 실제로 있는 것, <span class="q">[확인필요]</span>는 아직 모르는 것입니다. 「어디에」가 비어 있는 곳이 우리 회사의 구멍입니다.</p>
+
+  <h2>1 · 뽑는다 — 채용 5단계 <span class="count">확인필요 13칸</span></h2>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>단계</th><th>누가 하나</th><th>무엇이 기록으로 남나</th><th>그 기록은 어디에</th></tr>
+    <tr class="pre"><td class="step">0 채용 결정<small>공고 앞 한 줄</small></td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>왜 뽑나 · 어느 자리 · 예산 · 지원금 <span class="q">[확인필요: 지금 적어 두는지]</span></td>
+      <td><span class="q">[확인필요]</span></td></tr>
+    <tr><td class="step">① 공고</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>공고문 · 낸 곳 · 마감일</td>
+      <td><span class="q">[확인필요: 어디에 공고를 내는지]</span></td></tr>
+    <tr><td class="step">② 지원</td>
+      <td>지원자</td>
+      <td>이력서</td>
+      <td><span class="q">[확인필요]</span> · 이력서는 클로드에 넣지 않고 사람이 직접 봅니다 (해외 서버로 전송됨)</td></tr>
+    <tr><td class="step">③ 면접</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>면접 기록 <span class="q">[확인필요: 남기는지]</span></td>
+      <td><span class="q">[확인필요]</span></td></tr>
+    <tr><td class="step">④ 선발</td>
+      <td><span class="q">[확인필요]</span> · 전자결재 문서는 모두 대표까지 가지만, 채용도 그런지는 모름</td>
+      <td>결과와 이유 · 떨어진 사람에게 알렸는지</td>
+      <td><span class="q">[확인필요]</span></td></tr>
+    <tr><td class="step">⑤ 입사 서류</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>근로계약서 · 교부일</td>
+      <td><span class="q">[확인필요: 종이인지 파일인지]</span></td></tr>
+  </table>
+  </div>
+
+  <h2>2 · 들어온다 — 입사 첫 30일 <span class="count">확인필요 14칸</span></h2>
+  <div class="tbl-wrap">
+  <table>
+    <tr><th>단계</th><th>누가 하나</th><th>무엇이 기록으로 남나</th><th>그 기록은 어디에</th></tr>
+    <tr><td class="step">근로계약<small>작성 + 교부</small></td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>계약서 · 교부한 날 · 수습 여부</td>
+      <td><span class="q">[확인필요]</span> → ③ 노무 4줄의 「계약서 교부」 줄과 이어짐</td></tr>
+    <tr><td class="step">4대보험<small>취득 신고 ★기한</small></td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>취득 신고한 날</td>
+      <td><span class="q">[확인필요]</span> · <span class="fact">확인</span> 매월 보험료는 10일 자동이체 (신고와는 다른 일)</td></tr>
+    <tr><td class="step">계정</td>
+      <td>ERP 연차 부여 일수: <span class="fact">확인</span> 대표 · 경리만 고칠 수 있음<br>그 밖의 계정: <span class="q">[확인필요]</span></td>
+      <td>무슨 계정을 줬나 → ⑤ 허용표 한 줄</td>
+      <td><span class="fact">확인</span> 우리 ERP에는 아직 직원별 계정이 없음 (결재 · 밥톡은 「접속한 사람」 상자로 고름, 사람 목록은 화면 안에 들어 있음) · 공구erp 계정 <span class="q">[확인필요]</span></td></tr>
+    <tr><td class="step">첫 주</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td><span class="fact">확인</span> 직원에게 업무용 스마트폰 지급 (배송기사는 개인 폰) · 그 밖에 받는 것 <span class="q">[확인필요]</span></td>
+      <td>체크리스트 <span class="q">[확인필요: 있는지]</span></td></tr>
+    <tr><td class="step">30일 면담</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>면담 한 줄</td>
+      <td><span class="q">[확인필요]</span></td></tr>
+    <tr><td class="step">수습 끝나는 날</td>
+      <td><span class="q">[확인필요]</span></td>
+      <td>수습 기간 · 끝나는 날 <span class="q">[확인필요: 수습을 두는지]</span></td>
+      <td><span class="q">[확인필요]</span> → ③ 노무 4줄의 「계약 만료일」 줄과 이어짐</td></tr>
+  </table>
+  </div>
+  <p class="note">합격자를 명부에 적는 곳은 한 곳이어야 합니다. 지원자 표와 명부를 따로 키우지 않습니다. 지금 우리 ERP에는 명부 칸이 아직 없습니다.</p>
+
+  <h2>개선안 한 줄 — 4원칙 중 하나</h2>
+  <div class="pick">
+    <span class="tag">고른 원칙 · 급하게 뽑지 않기 위한 안전장치</span>
+    <div class="line">공고를 내기 전에 「채용 결정」(왜 · 어느 자리 · 그동안 누가 메우나)을 전자결재로 대표에게 올리고, 면접은 대표와 부서장(차장 또는 경리과장)이 따로 기록한 뒤 선발한다.</div>
+    <div class="why"><b>왜 이것인가:</b> 우리 회사는 13명이 모두 멀티 업무를 하고, 배송기사는 각자 담당 구역이 있습니다. 한 사람이 빠지면 그 자리가 바로 비어서 급하게 뽑게 되기 쉽습니다. 이미 쓰고 있는 결재선(부서장 → 대표)에 한 줄만 더하면 되어서 새 규칙이 필요 없습니다.</div>
+    <div class="others">고르지 않은 원칙: 싼 필터를 앞에 · 인재상은 과제로 확인 · 성별 · 나이 · 출신으로 거르지 않기 (마지막 원칙은 공고 문구를 쓸 때 기본으로 지킵니다)</div>
+  </div>
+
+  <h2>마인드맵 한 장</h2>
+  <div class="map-wrap">
+  <svg viewBox="0 0 1000 600" role="img" aria-label="채용 5단계와 입사 첫 30일 마인드맵">
+    <g fill="none" stroke-width="2.2">
+      <!-- 왼쪽: 뽑는다 -->
+      <g stroke="#7FA9A4">
+        <path d="M410 300 C350 300 330 70 290 70"/>
+        <path d="M410 300 C350 300 330 160 290 160"/>
+        <path d="M410 300 C350 300 330 250 290 250"/>
+        <path d="M410 300 C350 300 330 340 290 340"/>
+        <path d="M410 300 C350 300 330 430 290 430"/>
+        <path d="M410 300 C350 300 330 520 290 520"/>
+      </g>
+      <!-- 오른쪽: 들어온다 -->
+      <g stroke="#B79BDB">
+        <path d="M590 300 C650 300 670 70 710 70"/>
+        <path d="M590 300 C650 300 670 160 710 160"/>
+        <path d="M590 300 C650 300 670 250 710 250"/>
+        <path d="M590 300 C650 300 670 340 710 340"/>
+        <path d="M590 300 C650 300 670 430 710 430"/>
+        <path d="M590 300 C650 300 670 520 710 520"/>
+      </g>
+      <path d="M500 336 L500 470" stroke="#C1692F" stroke-dasharray="5 4"/>
+    </g>
+
+    <!-- 가운데 -->
+    <rect x="410" y="262" width="180" height="76" rx="14" fill="#1E2A44"/>
+    <text x="500" y="294" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">뽑는다 → 들어온다</text>
+    <text x="500" y="318" text-anchor="middle" fill="#9BA6C4" font-size="12">합격에서 끝나지 않는다</text>
+
+    <text x="175" y="28" text-anchor="middle" fill="#2C6E68" font-size="14" font-weight="700">1 · 채용 5단계</text>
+    <text x="825" y="28" text-anchor="middle" fill="#6B4F9E" font-size="14" font-weight="700">2 · 입사 첫 30일</text>
+
+    <!-- 왼쪽 노드 -->
+    <g font-size="12.5">
+      <rect x="60" y="44" width="230" height="52" rx="10" fill="#FBF6EA" stroke="#DFD2B4" stroke-dasharray="4 3"/>
+      <text x="74" y="66" font-weight="700" fill="#1E2A44" font-size="14">0 채용 결정</text>
+      <text x="74" y="85" fill="#946A17">왜 · 어느 자리 · 예산 [확인필요]</text>
+
+      <rect x="60" y="134" width="230" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="74" y="156" font-weight="700" fill="#1E2A44" font-size="14">① 공고</text>
+      <text x="74" y="175" fill="#946A17">누가 · 어디에 [확인필요]</text>
+
+      <rect x="60" y="224" width="230" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="74" y="246" font-weight="700" fill="#1E2A44" font-size="14">② 지원</text>
+      <text x="74" y="265" fill="#4B5670">지원자 · 이력서는 사람이 직접 본다</text>
+
+      <rect x="60" y="314" width="230" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="74" y="336" font-weight="700" fill="#1E2A44" font-size="14">③ 면접</text>
+      <text x="74" y="355" fill="#946A17">면접 기록 남기나 [확인필요]</text>
+
+      <rect x="60" y="404" width="230" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="74" y="426" font-weight="700" fill="#1E2A44" font-size="14">④ 선발</text>
+      <text x="74" y="445" fill="#946A17">누가 정하나 · 결과와 이유 [확인필요]</text>
+
+      <rect x="60" y="494" width="230" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="74" y="516" font-weight="700" fill="#1E2A44" font-size="14">⑤ 입사 서류</text>
+      <text x="74" y="535" fill="#946A17">계약서 · 교부일 · 어디에 [확인필요]</text>
+    </g>
+
+    <!-- 오른쪽 노드 -->
+    <g font-size="12.5">
+      <rect x="710" y="44" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="66" font-weight="700" fill="#1E2A44" font-size="14">근로계약 · 작성 + 교부</text>
+      <text x="724" y="85" fill="#946A17">누가 · 어디에 [확인필요] → ③ 노무</text>
+
+      <rect x="710" y="134" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="156" font-weight="700" fill="#1E2A44" font-size="14">4대보험 · 취득 신고 ★기한</text>
+      <text x="724" y="175" fill="#946A17">누가 [확인필요] · 보험료는 10일 자동이체</text>
+
+      <rect x="710" y="224" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="246" font-weight="700" fill="#1E2A44" font-size="14">계정 → ⑤ 허용표 한 줄</text>
+      <text x="724" y="265" fill="#2C6E68">ERP 직원 계정 아직 없음 (확인)</text>
+
+      <rect x="710" y="314" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="336" font-weight="700" fill="#1E2A44" font-size="14">첫 주</text>
+      <text x="724" y="355" fill="#2C6E68">업무폰 지급 (확인) · 목록 [확인필요]</text>
+
+      <rect x="710" y="404" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="426" font-weight="700" fill="#1E2A44" font-size="14">30일 면담</text>
+      <text x="724" y="445" fill="#946A17">누가 · 어디에 [확인필요]</text>
+
+      <rect x="710" y="494" width="240" height="52" rx="10" fill="#FFFDF8" stroke="#DFD2B4"/>
+      <text x="724" y="516" font-weight="700" fill="#1E2A44" font-size="14">수습 끝나는 날</text>
+      <text x="724" y="535" fill="#946A17">수습 두나 [확인필요] → ③ 계약 만료일</text>
+    </g>
+
+    <!-- 아래: 개선안 -->
+    <rect x="370" y="470" width="260" height="96" rx="12" fill="#FFFDF8" stroke="#C1692F" stroke-width="2"/>
+    <text x="500" y="494" text-anchor="middle" fill="#C1692F" font-size="13" font-weight="700">개선안 · 급하게 뽑지 않기</text>
+    <text x="500" y="516" text-anchor="middle" fill="#1E2A44" font-size="12.5">공고 전 「채용 결정」을 전자결재로</text>
+    <text x="500" y="535" text-anchor="middle" fill="#1E2A44" font-size="12.5">면접은 대표 + 부서장이</text>
+    <text x="500" y="554" text-anchor="middle" fill="#1E2A44" font-size="12.5">따로 기록한 뒤 선발</text>
+  </svg>
+  </div>
+
+  <h2>대표님께 물을 것 — 이것만 답하면 칸이 채워집니다</h2>
+  <ol class="ask">
+    <li>직원을 뽑을 때 공고는 어디에 내고, 누가 내나요?</li>
+    <li>이력서는 어디로 받고, 어디에 보관하나요? 떨어진 사람 서류는 어떻게 하나요?</li>
+    <li>면접은 누가 보나요? 면접 내용을 적어 두나요?</li>
+    <li>최종 결정은 대표님이 하시나요?</li>
+    <li>근로계약서는 누가 쓰고, 종이와 파일 중 어디에 보관하나요? 직원에게 한 부 주나요?</li>
+    <li>4대보험 취득 신고는 누가 하나요? (경리, 세무사, 노무사 중)</li>
+    <li>새 사람이 들어오면 첫 주에 무엇을 받나요? (업무폰 말고) 그게 어디 적혀 있나요?</li>
+    <li>수습 기간이 있나요? 있다면 몇 개월인가요? 30일쯤 면담을 하나요?</li>
+    <li>공구erp 계정은 누가 만들어 주나요? 그만둘 때는 누가 닫나요?</li>
+  </ol>
+  <div class="warn">이 화면에는 실제 지원자, 직원 이름, 이력서, 연락처를 넣지 않습니다. 4대보험 취득 신고 기한 등은 공단과 노무사 안내로 확인하십시오. 오늘은 순서와 「어디에 적나」까지만 다룹니다.</div>
+
+  <p class="foot">이 화면은 법률 자문이 아닙니다. 6회차 ② 뽑는다 · 들어온다 한 장 · 기혁스 3기</p>
+</div>
+</body>
+</html>
