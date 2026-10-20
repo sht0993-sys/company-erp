@@ -77,7 +77,7 @@
         <label>입사일<input name="hire_date" type="date"></label>
         <label>계약 종료일 <small>(정규직이면 비움)</small><input name="contract_end" type="date"></label>
         <label>근로계약서<select name="contract_paper"><option>모름</option><option>있음</option><option>없음</option></select></label>
-        <label>교부일 <small>(직원에게 준 날)</small><input name="delivered_on" type="date" disabled></label>
+        <label>교부일 <small>(가장 최근 계약서를 준 날)</small><input name="delivered_on" type="date" disabled></label>
         <div class="full"><button type="submit" id="addbtn">명부에 추가</button> <span class="err" id="err"></span></div>
       </form>
     </section>
@@ -92,7 +92,7 @@
         <label>입사일<input name="hire_date" type="date"></label>
         <label>계약 종료일 <small>(정규직이면 비움)</small><input name="contract_end" type="date"></label>
         <label>근로계약서<select name="contract_paper"><option>모름</option><option>있음</option><option>없음</option></select></label>
-        <label>교부일 <small>(직원에게 준 날)</small><input name="delivered_on" type="date"></label>
+        <label>교부일 <small>(가장 최근 계약서를 준 날)</small><input name="delivered_on" type="date"></label>
         <div class="full"><button type="submit" id="savebtn">저장</button> <button class="ghost" type="button" id="cancelEdit">취소</button> <span class="err" id="eerr"></span></div>
       </form>
     </section>
@@ -101,7 +101,7 @@
       <div class="tools"><div class="sum" id="sum">불러오는 중…</div><span class="saved" id="saved"></span><button class="ghost" id="reload" type="button">새로고침</button></div>
       <div class="wrap">
         <table>
-          <thead><tr><th>이름</th><th>부서</th><th>고용형태</th><th>입사일</th><th>계약 종료일</th><th>근로계약서</th><th>교부일</th><th>노무 배지</th><th>연차</th><th></th></tr></thead>
+          <thead><tr><th>이름</th><th>부서</th><th>고용형태</th><th>입사일</th><th>계약 종료일</th><th>근로계약서</th><th>교부일 <small style="font-weight:normal">(최근 계약서)</small></th><th>노무 배지</th><th>연차</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
