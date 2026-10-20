@@ -35,6 +35,11 @@
   tr.pre td{background:#FBF6EA}
   .note{font-size:13px;color:var(--ink-soft);margin:8px 2px 0}
 
+  .prop{display:inline-block;background:var(--human-bg);color:var(--human);font-weight:700;font-size:12px;border-radius:5px;padding:0 6px;white-space:nowrap}
+  .printbtn{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--surface);border-radius:6px;padding:2px 10px;cursor:pointer;color:var(--ink-soft)}
+  table.chk{min-width:900px}
+  table.chk td{font-size:13px}
+  @media print{ .back,.printbtn,.map-wrap,.pick,.ask-section{display:none!important} body{background:#fff} .wrap{max-width:none;padding:0} table.chk{min-width:0} .tbl-wrap{overflow:visible} }
   .pick{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:16px}
   .pick .tag{display:inline-block;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:6px}
   .pick .line{font-size:16px;font-weight:700}
@@ -89,37 +94,47 @@
   </table>
   </div>
 
-  <h2>2 · 들어온다 — 입사 첫 30일 <span class="count">확인필요 14칸</span></h2>
+  <h2>2 · 들어온다 — 입사 첫 30일 체크리스트 <span class="count">확인필요 13칸</span> <button class="printbtn" type="button" onclick="window.print()">인쇄</button></h2>
+  <p class="note" style="margin:0 2px 8px"><span class="fact">확인</span> 대표님이 말씀하신 것 · 지금 ERP에 있는 것 &nbsp;<span class="prop">제안</span> 제가 정해 본 것(대표님이 고치세요) &nbsp;<span class="q">[확인필요]</span> 모르는 것 — 「채워 줄 사람」에게 물어보면 채워집니다</p>
   <div class="tbl-wrap">
-  <table>
-    <tr><th>단계</th><th>누가 하나</th><th>무엇이 기록으로 남나</th><th>그 기록은 어디에</th></tr>
-    <tr><td class="step">근로계약<small>작성 + 교부</small></td>
-      <td><span class="q">[확인필요]</span></td>
-      <td>계약서 · 교부한 날 · 수습 여부</td>
-      <td><span class="q">[확인필요]</span> → ③ 노무 4줄의 「계약서 교부」 줄과 이어짐</td></tr>
-    <tr><td class="step">4대보험<small>취득 신고 ★기한</small></td>
-      <td><span class="q">[확인필요]</span></td>
-      <td>취득 신고한 날</td>
-      <td><span class="q">[확인필요]</span> · <span class="fact">확인</span> 매월 보험료는 10일 자동이체 (신고와는 다른 일)</td></tr>
-    <tr><td class="step">계정</td>
-      <td>ERP 연차 부여 일수: <span class="fact">확인</span> 대표 · 경리만 고칠 수 있음<br>그 밖의 계정: <span class="q">[확인필요]</span></td>
-      <td>무슨 계정을 줬나 → ⑤ 허용표 한 줄</td>
-      <td><span class="fact">확인</span> 우리 ERP에는 아직 직원별 계정이 없음 (결재 · 밥톡은 「접속한 사람」 상자로 고름, 사람 목록은 화면 안에 들어 있음) · 공구erp 계정 <span class="q">[확인필요]</span></td></tr>
-    <tr><td class="step">첫 주</td>
-      <td><span class="q">[확인필요]</span></td>
-      <td><span class="fact">확인</span> 직원에게 업무용 스마트폰 지급 (배송기사는 개인 폰) · 그 밖에 받는 것 <span class="q">[확인필요]</span></td>
-      <td>체크리스트 <span class="q">[확인필요: 있는지]</span></td></tr>
-    <tr><td class="step">30일 면담</td>
-      <td><span class="q">[확인필요]</span></td>
-      <td>면담 한 줄</td>
-      <td><span class="q">[확인필요]</span></td></tr>
-    <tr><td class="step">수습 끝나는 날</td>
-      <td><span class="q">[확인필요]</span></td>
-      <td>수습 기간 · 끝나는 날 <span class="q">[확인필요: 수습을 두는지]</span></td>
-      <td><span class="q">[확인필요]</span> → ③ 노무 4줄의 「계약 만료일」 줄과 이어짐</td></tr>
+  <table class="chk">
+    <tr><th>☐ 칸</th><th>누가</th><th>언제까지</th><th>어디에 남기나</th><th>채워 줄 사람</th></tr>
+    <tr><td class="step">☐ 근로계약<small>작성 + 교부</small></td>
+      <td><span class="q">[확인필요: 누가 쓰고 주는지]</span><br><span class="prop">제안</span> 대표가 서명하고 경리과장이 교부</td>
+      <td>입사 당일 <span class="prop">제안</span><br><small>확정은 노무사 질문 3번의 답으로</small></td>
+      <td><span class="fact">확인</span> <a href="erp-roster.html">사람 명부</a>에 입력: 입사일 · 고용형태 · 근로계약서 · <b>교부일</b><br>계약서 사본: <span class="q">[확인필요: 종이 / 파일 · 보관 위치]</span></td>
+      <td>대표님 (지금 어떻게 하는지)<br>노무사 (교부 시점 기준)</td></tr>
+    <tr><td class="step">☐ 4대보험 취득</td>
+      <td><span class="q">[확인필요: 경리 / 세무 · 노무 사무소]</span></td>
+      <td><span class="q">[확인필요: 취득 신고 기한]</span><br><small>공단 · 노무사 안내로 확인</small></td>
+      <td><span class="q">[확인필요: 신고한 날을 어디에 남기는지]</span><br><span class="fact">확인</span> 보험료 자동이체는 매월 10일 (신고와는 다른 일)</td>
+      <td>경리과장 · 경리 (지금 누가 하는지)<br>공단 · 노무사 (기한)</td></tr>
+    <tr><td class="step">☐ 계정<small>ERP · 공구erp</small></td>
+      <td><span class="fact">확인</span> ERP: 대표 (허용표는 대표만 수파베이스에서 넣고 고침)<br>공구erp: <span class="q">[확인필요]</span></td>
+      <td>입사 당일 <span class="prop">제안</span></td>
+      <td><span class="fact">확인</span> 허용표 한 줄 (이메일 · 역할: 경리과장 = 인사, 나머지 = 일반)<br>ERP 로그인은 7회차에 대표가 만듦 · 퇴사하면 상태만 「퇴사」로</td>
+      <td>공구erp 계정: 공구erp 담당 <span class="q">[확인필요: 누구인지]</span></td></tr>
+    <tr><td class="step">☐ 첫 주</td>
+      <td><span class="q">[확인필요]</span><br><span class="prop">제안</span> 입사한 부서의 부서장 (차장 · 경리과장)</td>
+      <td>입사 후 7일 <span class="prop">제안</span></td>
+      <td>이 체크리스트에 받은 날을 적음<br><span class="fact">확인</span> 업무용 스마트폰 지급 (배송기사는 개인 폰) · 연차 부여 일수 입력 (전자결재 연차 잔여, 대표 · 경리만)<br>그 밖에 받는 것: <span class="q">[확인필요]</span></td>
+      <td>부서장 (「새 사람이 첫 주에 무엇을 받나요?」)</td></tr>
+    <tr><td class="step">☐ 30일 면담</td>
+      <td><span class="q">[확인필요: 면담을 하는지 · 누가 하는지]</span><br><span class="prop">제안</span> 부서장</td>
+      <td>입사 후 30일 (체크리스트의 기준)</td>
+      <td>면담 한 줄 (잘 맞는지 · 어려운 점 · 다음 조치)<br><span class="q">[확인필요: 지금 적을 칸이 없음 — 이 체크리스트 메모란에 적기]</span></td>
+      <td>대표님</td></tr>
+    <tr><td class="step">☐ 수습 끝나는 날</td>
+      <td><span class="q">[확인필요: 수습을 두는지 · 누가 평가하는지]</span></td>
+      <td>끝나기 2주 전까지 평가 · 결정 <span class="prop">제안</span><br><small>수업 자료의 「계약 · 평가」 규칙</small></td>
+      <td><span class="q">[확인필요: 정규직의 수습 끝나는 날을 적을 칸이 사람 명부에 없음]</span><br>계약직이면 사람 명부의 계약 종료일 칸</td>
+      <td>대표님 (수습 여부 · 기간)<br>노무사 (수습 조건)</td></tr>
   </table>
   </div>
-  <p class="note">합격자를 명부에 적는 곳은 한 곳이어야 합니다. 지원자 표와 명부를 따로 키우지 않습니다. 지금 우리 ERP에는 명부 칸이 아직 없습니다.</p>
+  <div class="success" style="margin-top:12px">
+    <span class="prop">제안</span> <b>다음 입사자 1명을 경리과장이 입사일부터 30일까지 이 체크리스트 하나로 끝내면 성공.</b>
+  </div>
+  <p class="note">합격자를 명부에 적는 곳은 사람 명부 한 곳입니다. 지원자 표를 따로 키우지 않습니다. 4대보험 신고 기한 · 계약서 교부 기준은 공단 · 노무사 안내로 확인하세요(이 화면은 법률 자문이 아닙니다).</p>
 
   <h2>개선안 한 줄 — 4원칙 중 하나</h2>
   <div class="pick">
