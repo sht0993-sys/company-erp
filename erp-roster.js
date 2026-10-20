@@ -89,7 +89,6 @@
   function render(){
     var red = 0, amber = 0, ok = 0, unknown = 0;
     $("rows").innerHTML = list.length ? list.map(function(p){
-      if (editing === p.id) return editRow(p);
       var bs = laborBadges(p);
       bs.forEach(function(b){ if (b[0]==="b-red") red++; else if (b[0]==="b-amber") amber++; else ok++; });
       var cells = [
@@ -100,7 +99,7 @@
         endCell(p), paperCell(p), deliveredCell(p)
       ];
       cells.forEach(function(c){ if (c === UNKNOWN) unknown++; });
-      return '<tr>'+cells.map(function(c){ return '<td>'+c+'</td>'; }).join("")+
+      return '<tr'+(editing === p.id ? ' class="editing"' : '')+'>'+cells.map(function(c){ return '<td>'+c+'</td>'; }).join("")+
         '<td>'+bs.map(function(b){ return badge(b[0], b[1]); }).join("")+'</td>'+
         '<td>'+leaveCell()+'</td>'+
         '<td class="act"><button class="ghost" data-act="edit" data-id="'+p.id+'" type="button">고치기</button><button class="danger" data-act="del" data-id="'+p.id+'" type="button">지우기</button></td></tr>';
@@ -108,20 +107,6 @@
     $("sum").innerHTML = list.length ?
       '<b>'+list.length+'명</b>'+badge("b-red","빨강 "+red)+badge("b-amber","노랑 "+amber)+badge("b-ok","정상 "+ok)+'<span style="color:#6b7280">빈칸(모름) '+unknown+'개</span>' :
       '0명';
-  }
-
-  function editRow(p){
-    var id = p.id;
-    return '<tr data-edit="'+id+'">'+
-      '<td><input data-k="name" value="'+esc(p.name)+'" maxlength="40" size="8"></td>'+
-      '<td><select data-k="dept">'+opts(DEPTS, p.dept, "(모름)")+'</select></td>'+
-      '<td><select data-k="employment_type">'+opts(TYPES, p.employment_type)+'</select></td>'+
-      '<td><input data-k="hire_date" type="date" value="'+esc(p.hire_date||"")+'"></td>'+
-      '<td><input data-k="contract_end" type="date" value="'+esc(p.contract_end||"")+'"></td>'+
-      '<td><select data-k="contract_paper">'+opts(PAPERS, p.contract_paper)+'</select></td>'+
-      '<td><input data-k="delivered_on" type="date" value="'+esc(p.delivered_on||"")+'"'+(p.contract_paper==="있음"?"":" disabled")+'></td>'+
-      '<td colspan="2" class="err" data-err></td>'+
-      '<td class="act"><button data-act="save" data-id="'+id+'" type="button">저장</button><button class="ghost" data-act="cancel" type="button">취소</button></td></tr>';
   }
 
   // 화면 값 → 표에 넣을 값 (빈칸은 null = 모름)
@@ -142,9 +127,11 @@
   }
 
   // ── 새 사람 넣기 ─────────────
-  $("f").contract_paper.addEventListener("change", function(e){
-    var on = e.target.value === "있음"; $("f").delivered_on.disabled = !on; if (!on) $("f").delivered_on.value = "";
-  });
+  function syncDelivered(form){
+    var on = form.contract_paper.value === "있음"; form.delivered_on.disabled = !on; if (!on) form.delivered_on.value = "";
+  }
+  $("f").contract_paper.addEventListener("change", function(){ syncDelivered($("f")); });
+  $("ef").contract_paper.addEventListener("change", function(){ syncDelivered($("ef")); });
   $("f").addEventListener("submit", async function(e){
     e.preventDefault();
     var f = e.target, r = readFields(function(k){ return f[k].value; });
@@ -157,32 +144,55 @@
   });
 
   // ── 고치기 · 지우기 ─────────────
-  $("rows").addEventListener("change", function(e){
-    if (e.target.getAttribute("data-k") !== "contract_paper") return;
-    var tr = e.target.closest("tr"), d = tr.querySelector('[data-k="delivered_on"]'), on = e.target.value === "있음";
-    d.disabled = !on; if (!on) d.value = "";
-  });
+  //   「고치기」를 누르면 표 위의 고치기 상자가 열린다. Enter 또는 「저장」으로 저장.
+  function openEdit(p){
+    var ef = $("ef");
+    editing = p.id;
+    ef.name.value = p.name || "";
+    ef.dept.value = DEPTS.indexOf(p.dept) >= 0 ? p.dept : "";
+    ef.employment_type.value = TYPES.indexOf(p.employment_type) >= 0 ? p.employment_type : "모름";
+    ef.hire_date.value = p.hire_date || "";
+    ef.contract_end.value = p.contract_end || "";
+    ef.contract_paper.value = PAPERS.indexOf(p.contract_paper) >= 0 ? p.contract_paper : "모름";
+    ef.delivered_on.value = p.delivered_on || "";
+    syncDelivered(ef);
+    $("editName").textContent = p.name || "";
+    $("eerr").textContent = ""; $("saved").textContent = "";
+    $("editCard").hidden = false;
+    render();
+    $("editCard").scrollIntoView({behavior:"smooth", block:"start"});
+    ef.employment_type.focus();
+  }
+  function closeEdit(){ editing = null; $("editCard").hidden = true; render(); }
+
   $("rows").addEventListener("click", async function(e){
     var b = e.target.closest("button[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act"), id = Number(b.getAttribute("data-id"));
-    if (act === "edit"){ editing = id; render(); return; }
-    if (act === "cancel"){ editing = null; render(); return; }
+    var p = list.filter(function(x){ return x.id === id; })[0];
+    if (act === "edit" && p){ openEdit(p); return; }
     if (act === "del"){
-      var p = list.filter(function(x){ return x.id === id; })[0];
       if (!confirm("「"+(p ? p.name : "")+"」을(를) 명부에서 지울까요?\n이 사람의 월급 줄도 같이 지워지고, 되돌릴 수 없습니다.")) return;
       var d = await sb.from("people").delete().eq("id", id);
       if (d.error) alert("지우지 못했습니다: " + d.error.message);
-      load(); return;
-    }
-    if (act === "save"){
-      var tr = b.closest("tr"), r = readFields(function(k){ return tr.querySelector('[data-k="'+k+'"]').value; });
-      if (r.error){ tr.querySelector("[data-err]").textContent = r.error; return; }
-      b.disabled = true;
-      var u = await sb.from("people").update(r.value).eq("id", id);
-      if (u.error){ b.disabled = false; tr.querySelector("[data-err]").textContent = "저장하지 못했습니다: " + u.error.message; return; }
-      editing = null; load();
+      if (editing === id) closeEdit();
+      load();
     }
   });
+
+  $("ef").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var ef = e.target, r = readFields(function(k){ return ef[k].value; });
+    if (r.error){ $("eerr").textContent = r.error; return; }
+    $("eerr").textContent = ""; $("savebtn").disabled = true;
+    var u = await sb.from("people").update(r.value).eq("id", editing).select();
+    $("savebtn").disabled = false;
+    if (u.error){ $("eerr").textContent = "저장하지 못했습니다: " + u.error.message; return; }
+    if (!u.data || !u.data.length){ $("eerr").textContent = "저장되지 않았습니다 (고칠 권한이 없거나 이미 지워진 사람입니다)."; return; }
+    editing = null; $("editCard").hidden = true;
+    $("saved").textContent = "「"+r.value.name+"」 저장했습니다 ✓";
+    load();
+  });
+  $("cancelEdit").addEventListener("click", closeEdit);
 
   // ── 상시 5인 이상 (대표만 바꿈) ─────────────
   $("five").addEventListener("change", async function(e){
@@ -200,7 +210,7 @@
     if (r.error){ $("lerr").textContent = "로그인에 실패했습니다. 이메일·비밀번호를 확인해 주세요."; return; }
     show(r.data.session);
   });
-  $("logout").addEventListener("click", async function(){ await sb.auth.signOut(); editing = null; show(null); });
+  $("logout").addEventListener("click", async function(){ await sb.auth.signOut(); editing = null; $("editCard").hidden = true; show(null); });
   $("reload").addEventListener("click", load);
 
   sb.auth.getSession().then(function(r){ show(r.data.session); });

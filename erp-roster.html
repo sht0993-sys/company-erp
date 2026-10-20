@@ -21,6 +21,9 @@
   td.act button{padding:4px 9px;font-size:12px;margin-right:4px}
   button.danger{background:#fee2e2;color:#b91c1c}
   .legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+  .editing-card{border:2px solid #1f3a5f}
+  tr.editing td{background:#eef4fb}
+  .saved{color:#166534;font-size:13px;font-weight:bold;margin-left:auto;margin-right:10px}
 </style>
 </head>
 <body>
@@ -74,8 +77,23 @@
       </form>
     </section>
 
+    <!-- 고치기 — 표에서 「고치기」를 누르면 여기가 열린다 -->
+    <section class="card editing-card" id="editCard" hidden>
+      <h2>고치기 — <span id="editName"></span></h2>
+      <form id="ef" novalidate>
+        <label>이름<input name="name" maxlength="40" autocomplete="off"></label>
+        <label>부서<select name="dept"><option value="">(모름)</option><option>영업</option><option>경리</option><option>배송</option></select></label>
+        <label>고용형태<select name="employment_type"><option>모름</option><option>정규직</option><option>계약직</option><option>단시간</option><option>일용</option></select></label>
+        <label>입사일<input name="hire_date" type="date"></label>
+        <label>계약 종료일 <small>(정규직이면 비움)</small><input name="contract_end" type="date"></label>
+        <label>근로계약서<select name="contract_paper"><option>모름</option><option>있음</option><option>없음</option></select></label>
+        <label>교부일 <small>(직원에게 준 날)</small><input name="delivered_on" type="date"></label>
+        <div class="full"><button type="submit" id="savebtn">저장</button> <button class="ghost" type="button" id="cancelEdit">취소</button> <span class="err" id="eerr"></span></div>
+      </form>
+    </section>
+
     <section class="card">
-      <div class="tools"><div class="sum" id="sum">불러오는 중…</div><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="tools"><div class="sum" id="sum">불러오는 중…</div><span class="saved" id="saved"></span><button class="ghost" id="reload" type="button">새로고침</button></div>
       <div class="wrap">
         <table>
           <thead><tr><th>이름</th><th>부서</th><th>고용형태</th><th>입사일</th><th>계약 종료일</th><th>근로계약서</th><th>교부일</th><th>노무 배지</th><th>연차</th><th></th></tr></thead>
