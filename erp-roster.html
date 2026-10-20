@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>사람 명부 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<style>
+  .b-red{background:#fee2e2;color:#b91c1c;font-weight:bold}
+  .b-amber{background:#fef3c7;color:#92400e}
+  .b-ok{background:#dcfce7;color:#166534}
+  .b-grey{background:#e5e7eb;color:#374151}
+  td .badge{margin-right:3px}
+  .setting{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+  .setting select{min-width:110px}
+  .setting .hint{font-size:12px;color:#6b7280}
+  .sum{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  td input,td select{padding:4px 6px;font-size:13px}
+  td.act{white-space:nowrap}
+  td.act button{padding:4px 9px;font-size:12px;margin-right:4px}
+  button.danger{background:#fee2e2;color:#b91c1c}
+  .legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+</style>
+</head>
+<body>
+<header>
+  <h1>🗂️ 사람 명부</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-roster.html" class="on">사람 명부</a><a href="erp-people.html">사람 칸 그림</a><a href="erp-hiring.html">채용 · 첫 30일</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <!-- 로그인 — 명부는 대표 · 인사(허용표)만 열린다 -->
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">직원 이름 · 입사일 · 계약 정보가 있어서, 허용표에 대표 · 인사로 등록된 계정만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <!-- 로그인은 했지만 명부를 볼 수 없는 계정 -->
+  <section class="card" id="denied" hidden>
+    <h2>명부를 볼 권한이 없습니다</h2>
+    <div class="note">사람 명부는 대표 · 인사만 봅니다. 필요하면 대표님께 허용표 등록을 요청하세요.</div>
+  </section>
+
+  <div id="app" hidden>
+    <section class="card">
+      <h2>회사 설정</h2>
+      <div class="setting">
+        <label style="flex-direction:row;align-items:center;gap:8px;font-size:14px;color:#1f2937">상시 5인 이상
+          <select id="five"><option>모름</option><option>예</option><option>아니오</option></select>
+        </label>
+        <span class="err" id="fiveMsg"></span>
+        <span class="hint" id="fiveHint"></span>
+      </div>
+      <div class="legend">이 값은 수파베이스 「회사 설정」 한 곳에만 저장되고, 연차 줄이 이 값을 따라갑니다. 세는 법(누구를 넣고 빼는지)은 노무사에게 확인하세요. 애매하면 「모름」으로 둡니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>새 사람 넣기</h2>
+      <form id="f" novalidate>
+        <label>이름<input name="name" maxlength="40" autocomplete="off"></label>
+        <label>부서<select name="dept"><option value="">(모름)</option><option>영업</option><option>경리</option><option>배송</option></select></label>
+        <label>고용형태<select name="employment_type"><option>모름</option><option>정규직</option><option>계약직</option><option>단시간</option><option>일용</option></select></label>
+        <label>입사일<input name="hire_date" type="date"></label>
+        <label>계약 종료일 <small>(정규직이면 비움)</small><input name="contract_end" type="date"></label>
+        <label>근로계약서<select name="contract_paper"><option>모름</option><option>있음</option><option>없음</option></select></label>
+        <label>교부일 <small>(직원에게 준 날)</small><input name="delivered_on" type="date" disabled></label>
+        <div class="full"><button type="submit" id="addbtn">명부에 추가</button> <span class="err" id="err"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="tools"><div class="sum" id="sum">불러오는 중…</div><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>이름</th><th>부서</th><th>고용형태</th><th>입사일</th><th>계약 종료일</th><th>근로계약서</th><th>교부일</th><th>노무 배지</th><th>연차</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span class="badge b-red">빨강</span> 확인 필요 · <span class="badge b-amber">노랑</span> 모름(비어 있음) · <span class="badge b-ok">초록</span> 정상 — 배지는 「위법」이 아니라 「물어볼 곳」입니다. 판단은 대표와 노무사가 합니다.<br>
+        빈칸은 「없음」이 아니라 <span class="badge b-amber">모름</span>입니다. 「없음」은 직접 「없음」을 고른 경우만입니다.
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-roster.js"></script>
+</body>
+</html>
