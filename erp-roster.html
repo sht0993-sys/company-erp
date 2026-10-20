@@ -21,6 +21,11 @@
   td.act button{padding:4px 9px;font-size:12px;margin-right:4px}
   button.danger{background:#fee2e2;color:#b91c1c}
   .legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+  /* 캡처용: 이름 가리기 — 이름이 나오는 곳을 모두 검게 덮는다 (화면에서만 가림, 저장된 값은 그대로) */
+  body.mask .nm, body.mask #who, body.mask #editName{background:#111;color:transparent!important;border-radius:3px;user-select:none;-webkit-user-select:none}
+  body.mask #ef input[name=name]{background:#111;color:transparent;caret-color:transparent;-webkit-text-fill-color:transparent}
+  body.mask #saved{visibility:hidden}
+  #maskbtn[aria-pressed=true]{background:#b91c1c!important}
   .editing-card{border:2px solid #1f3a5f}
   tr.editing td{background:#eef4fb}
   .saved{color:#166534;font-size:13px;font-weight:bold;margin-left:auto;margin-right:10px}
@@ -29,7 +34,7 @@
 <body>
 <header>
   <h1>🗂️ 사람 명부</h1>
-  <div class="r"><span id="who"></span><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-roster.html" class="on">사람 명부</a><a href="erp-people.html">사람 칸 그림</a><a href="erp-hiring.html">채용 · 첫 30일</a><a href="erp-map.html">← ERP 지도로</a></div>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 이름 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-roster.html" class="on">사람 명부</a><a href="erp-people.html">사람 칸 그림</a><a href="erp-hiring.html">채용 · 첫 30일</a><a href="erp-map.html">← ERP 지도로</a></div>
 </header>
 
 <main>

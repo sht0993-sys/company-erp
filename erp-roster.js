@@ -62,7 +62,7 @@
   // ── 로그인 · 권한 ─────────────
   async function show(session){
     var on = !!session;
-    $("login").hidden = on; $("logout").hidden = !on;
+    $("login").hidden = on; $("logout").hidden = !on; $("maskbtn").hidden = !on;
     $("who").textContent = on ? session.user.email : "";
     $("app").hidden = true; $("denied").hidden = true;
     if (!on) return;
@@ -92,7 +92,7 @@
       var bs = laborBadges(p);
       bs.forEach(function(b){ if (b[0]==="b-red") red++; else if (b[0]==="b-amber") amber++; else ok++; });
       var cells = [
-        esc(p.name),
+        '<span class="nm">'+esc(p.name)+'</span>',
         p.dept ? esc(p.dept) : UNKNOWN,
         p.employment_type === "모름" ? UNKNOWN : esc(p.employment_type),
         p.hire_date ? esc(p.hire_date) : UNKNOWN,
@@ -212,6 +212,14 @@
   });
   $("logout").addEventListener("click", async function(){ await sb.auth.signOut(); editing = null; $("editCard").hidden = true; show(null); });
   $("reload").addEventListener("click", load);
+
+  // 캡처용: 이름 가리기 — 누르면 이름과 로그인 이메일이 검게 가려지고, 다시 누르면 보인다
+  $("maskbtn").addEventListener("click", function(){
+    var on = !document.body.classList.contains("mask");
+    document.body.classList.toggle("mask", on);
+    this.setAttribute("aria-pressed", on ? "true" : "false");
+    this.textContent = on ? "이름 가리는 중 · 누르면 보임" : "캡처용: 이름 가리기";
+  });
 
   sb.auth.getSession().then(function(r){ show(r.data.session); });
 })();
