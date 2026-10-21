@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>거래처 대장 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<style>
+  .b-red{background:#fee2e2;color:#b91c1c;font-weight:bold}
+  .b-amber{background:#fef3c7;color:#92400e}
+  .b-ok{background:#dcfce7;color:#166534}
+  .b-grey{background:#e5e7eb;color:#374151}
+  .b-blue{background:#e0ecff;color:#1d4ed8}
+  td .badge{margin-right:3px}
+  .sum{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  td.act{white-space:nowrap}
+  td.act button{padding:4px 9px;font-size:12px;margin-right:4px}
+  button.danger{background:#fee2e2;color:#b91c1c}
+  .legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+  .editing-card{border:2px solid #1f3a5f}
+  tr.editing td{background:#eef4fb}
+  .saved{color:#166534;font-size:13px;font-weight:bold;margin-left:auto;margin-right:10px}
+  textarea{font:inherit;font-size:13px;padding:8px;border:1px solid #c5cbd3;border-radius:5px;width:100%;min-height:90px;resize:vertical}
+  .pv{margin-top:10px}
+  .pv table{min-width:0;font-size:13px}
+  .pv td.bad{background:#fee2e2}
+  .pv td.fix{background:#fef3c7}
+  .pv .why{font-size:12px;color:#92400e}
+  .readonly{background:#f9fafb;color:#4b5563;font-size:13px}
+  /* 캡처용: 이름 · 연락처 · 담당 가리기 — 화면에서만 가린다(저장된 값은 그대로) */
+  body.mask .nm, body.mask .ph, body.mask .ow, body.mask #who, body.mask #editName, body.mask .pvnm{background:#111;color:transparent!important;border-radius:3px;user-select:none;-webkit-user-select:none}
+  body.mask #ef input[name=name], body.mask #ef input[name=phone], body.mask #ef input[name=owner]{background:#111;color:transparent;caret-color:transparent;-webkit-text-fill-color:transparent}
+  body.mask #saved, body.mask #paste, body.mask .pv{visibility:hidden}
+  #maskbtn[aria-pressed=true]{background:#b91c1c!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>🤝 거래처 대장</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 이름 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-inquiry-ledger.html">문의 대장</a><a href="erp-customers.html">고객 대장</a><a href="erp-partners.html" class="on">거래처 대장</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <!-- 로그인 — 허용표에 재직 직원으로 등록된 계정만 열린다 -->
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">거래처 이름 · 연락처가 있어서, 허용표에 재직 직원으로 등록된 계정만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <section class="card" id="denied" hidden>
+    <h2>거래처 대장을 볼 권한이 없습니다</h2>
+    <div class="note">허용표에 재직 직원으로 등록된 계정만 볼 수 있습니다. 필요하면 대표님께 요청하세요.</div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="note" id="roleNote"></div>
+
+    <!-- 넣기 · 고치기는 대표만 -->
+    <section class="card" id="addCard" hidden>
+      <h2>새 거래처 넣기</h2>
+      <form id="f" novalidate>
+        <label>이름 <small>(꼭 필요)</small><input name="name" maxlength="80" autocomplete="off"></label>
+        <label>구분<select name="kind"><option value="">(모름)</option><option>고객</option><option>협력사</option><option>둘 다</option></select></label>
+        <label>연락처<input name="phone" inputmode="tel" placeholder="숫자만 · 9~11자리" autocomplete="off"></label>
+        <label>처음 알게 된 경로<select name="first_source"><option value="">(모름)</option><option value="search">검색(네이버·구글 등)</option><option value="map">지도(네이버·카카오 지도)</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="phone">전화</option><option value="other">기타</option><option value="unknown">모르겠음</option></select></label>
+        <label>최근 접촉일<input name="last_contact" type="date"></label>
+        <label>다음 접촉일<input name="next_contact" type="date"></label>
+        <label>담당<input name="owner" maxlength="40" autocomplete="off"></label>
+        <div class="full"><button type="submit" id="addbtn">대장에 추가</button> <span class="err" id="err"></span></div>
+      </form>
+    </section>
+
+    <section class="card" id="pasteCard" hidden>
+      <h2>시트에서 붙여넣기 <small style="font-weight:normal;color:#6b7280">(엑셀 · 구글 시트의 줄을 복사해서 붙여넣기)</small></h2>
+      <div class="note">열 순서: <b>이름 · 구분 · 연락처 · 처음 알게 된 경로 · 최근 접촉일 · 다음 접촉일 · 담당</b>. 첫 줄이 「이름」이면 머리글로 보고 건너뜁니다. 붙여넣으면 아래에 미리보기가 뜨고, 확인한 뒤 「넣기」를 누릅니다. 모르는 칸은 비워 두세요(0이나 「없음」을 쓰지 마세요).</div>
+      <textarea id="paste" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
+      <div class="pv" id="pv"></div>
+      <div style="margin-top:8px"><button type="button" id="pasteGo" hidden>미리보기대로 넣기</button> <button type="button" class="ghost" id="pasteClear" hidden>지우기</button> <span class="err" id="perr"></span></div>
+    </section>
+
+    <section class="card editing-card" id="editCard" hidden>
+      <h2>고치기 — <span id="editName"></span></h2>
+      <form id="ef" novalidate>
+        <label>이름<input name="name" maxlength="80" autocomplete="off"></label>
+        <label>구분<select name="kind"><option value="">(모름)</option><option>고객</option><option>협력사</option><option>둘 다</option></select></label>
+        <label>연락처<input name="phone" inputmode="tel" autocomplete="off"></label>
+        <label>처음 알게 된 경로<select name="first_source"><option value="">(모름)</option><option value="search">검색(네이버·구글 등)</option><option value="map">지도(네이버·카카오 지도)</option><option value="referral">지인 소개</option><option value="sns">SNS</option><option value="phone">전화</option><option value="other">기타</option><option value="unknown">모르겠음</option></select></label>
+        <label>최근 접촉일<input name="last_contact" type="date"></label>
+        <label>다음 접촉일<input name="next_contact" type="date"></label>
+        <label>담당<input name="owner" maxlength="40" autocomplete="off"></label>
+        <div class="full"><button type="submit" id="savebtn">저장</button> <button class="ghost" type="button" id="cancelEdit">취소</button> <span class="err" id="eerr"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="tools"><div class="sum" id="sum">불러오는 중…</div><span class="saved" id="saved"></span><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>이름</th><th>구분</th><th>연락처</th><th>처음 알게 된 경로</th><th>최근 접촉일</th><th>다음 접촉일</th><th>담당</th><th id="actTh"></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        빈칸은 「없음」이 아니라 <span class="badge b-amber">모름</span>입니다. 다음 접촉일이 오늘보다 지나면 <span class="badge b-red">접촉일 지남</span>, 7일 안이면 <span class="badge b-amber">곧</span>으로 보입니다. 같은 연락처가 둘 이상이면 <span class="badge b-blue">같은 연락처</span>가 붙습니다(합치지는 않습니다).
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-partners.js"></script>
+</body>
+</html>
