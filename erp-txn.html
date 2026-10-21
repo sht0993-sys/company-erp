@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>거래 분류함 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<style>
+  main{max-width:1180px}
+  .b-red{background:#fee2e2;color:#b91c1c;font-weight:bold}
+  .b-amber{background:#fef3c7;color:#92400e}
+  .b-ok{background:#dcfce7;color:#166534}
+  .b-grey{background:#e5e7eb;color:#374151}
+  .b-blue{background:#e0ecff;color:#1d4ed8}
+  .b-purple{background:#ede9fe;color:#5b21b6}
+  .hero{background:#1f3a5f;color:#fff;border-radius:10px;padding:16px 18px;margin-bottom:16px}
+  .hero .t{font-size:13px;color:#cfe0f5}
+  .hero .big{font-size:22px;font-weight:bold;margin:4px 0}
+  .hero .sub{font-size:13px;color:#e6eefb;line-height:1.7}
+  .hero .warn{margin-top:8px;background:#fef3c7;color:#7c2d12;border-radius:6px;padding:7px 10px;font-size:13px}
+  .nums{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:13px}
+  .nums b{font-size:15px}
+  .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .plus{color:#166534}.minus{color:#b91c1c}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:8px;font-size:13px;color:#374151}
+  .filters label{flex-direction:row;align-items:center;gap:6px;font-size:13px;color:#374151}
+  .filters input[type=search]{min-width:170px}
+  td.memo{white-space:normal;min-width:150px;font-size:13px}
+  td select, td input[type=month]{padding:4px 6px;font-size:13px}
+  td select.unset{border-color:#f59e0b;background:#fffbeb}
+  td .note-ref{font-size:12px;color:#6b7280}
+  tr.unclassified td{background:#fffdf5}
+  .saved{color:#166534;font-size:13px;font-weight:bold;margin-left:auto;margin-right:10px}
+  .tbl-month{min-width:0;font-size:13px}
+  .legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+  /* 캡처 · 화면 공유용: 금액 · 적요 · 이메일 가리기 — 화면에서만 가린다(저장된 값은 그대로) */
+  body.mask .mny, body.mask .memo-t, body.mask #who{background:#111;color:transparent!important;border-radius:3px;user-select:none;-webkit-user-select:none}
+  body.mask .hero .big{color:transparent!important;background:#111;border-radius:4px;display:inline-block}
+  #maskbtn[aria-pressed=true]{background:#b91c1c!important}
+  @media (max-width:800px){ .nums{gap:10px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>💰 거래 분류함</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 금액 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-txn.html" class="on">거래 분류함</a><a href="erp-bank.html">통장·매출 보기</a><a href="erp-pnl.html">월 손익</a><a href="erp-recv.html">미수금</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <!-- 로그인 — 돈 장부는 대표만 열린다 -->
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">통장 거래는 <b>대표 계정</b>만 볼 수 있습니다. 재무 · 인사 · 일반 직원은 0줄입니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <section class="card" id="denied" hidden>
+    <h2>돈 장부를 볼 권한이 없습니다</h2>
+    <div class="note">거래 분류함은 대표만 봅니다.</div>
+  </section>
+
+  <div id="app" hidden>
+    <!-- 남았나 모자랐나 -->
+    <section class="hero" id="hero">불러오는 중…</section>
+
+    <section class="card">
+      <h2>월별 손익</h2>
+      <div class="wrap"><table class="tbl-month">
+        <thead><tr><th>월</th><th class="num">판 것(매출)</th><th class="num">쓴 것(비용)</th><th class="num">남은 돈</th><th class="num">손익 아님 +/−</th><th class="num">미분류 +/−</th><th class="num">통장 증감</th><th class="num">미분류 건수</th><th class="num">전체 건수</th></tr></thead>
+        <tbody id="months"></tbody>
+      </table></div>
+      <div class="legend"><b>통장 증감 = 남은 돈 + 손익 아님 + 미분류.</b> 통장과 손익이 다른 이유가 이 세 줄입니다. 미분류는 손익에 넣지 않고 따로 셉니다 — 미분류가 많으면 「남은 돈」은 아직 믿지 않습니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>내 분류별 건수</h2>
+      <div class="chips" id="cats"></div>
+    </section>
+
+    <section class="card">
+      <div class="tools"><span id="count">불러오는 중…</span><span class="saved" id="saved"></span><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="filters">
+        <label>월 <select id="fMonth"><option value="">전체</option></select></label>
+        <label><input type="checkbox" id="fOpen"> 미분류만 보기</label>
+        <label>누가 <select id="fBy"><option value="">전체</option><option value="AI">AI</option><option value="나">나</option></select></label>
+        <label><input type="search" id="fQ" placeholder="적요 검색"></label>
+      </div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>날짜</th><th>입/출</th><th class="num">금액</th><th>적요</th><th>클로브 분류<br><small style="font-weight:normal">(참고만)</small></th><th>내 분류</th><th>누가</th><th>귀속월</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <b>내 분류</b>를 고르면 「누가」가 <span class="badge b-blue">나</span>로 바뀝니다. 비우면 <span class="badge b-red">미분류</span>로 돌아가고 지워지지 않습니다. <span class="badge b-purple">AI</span>는 AI가 정한 것, <span class="badge b-blue">나</span>는 내가 정한 것입니다.<br>
+        <b>귀속월</b>은 확실할 때만 넣습니다(예: 9월 월세를 10월 2일에 냈으면 9월). 비우면 거래일의 달로 셉니다.<br>
+        금액 · 날짜 · 입출 · 적요는 통장 원본이 정본이라 여기서 고칠 수 없습니다. 거래를 넣고 지우는 것은 클로드가 합니다.
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-txn.js"></script>
+</body>
+</html>

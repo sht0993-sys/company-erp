@@ -1,0 +1,41 @@
+/* 통장·매출 보기 · 월 손익 공용 스타일 (erp-ledger.css 위에 얹는다) */
+main{max-width:1180px}
+.b-red{background:#fee2e2;color:#b91c1c;font-weight:bold}
+.b-amber{background:#fef3c7;color:#92400e}
+.b-ok{background:#dcfce7;color:#166534}
+.b-grey{background:#e5e7eb;color:#374151}
+.b-blue{background:#e0ecff;color:#1d4ed8}
+.b-purple{background:#ede9fe;color:#5b21b6}
+.hero{background:#1f3a5f;color:#fff;border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.hero .t{font-size:13px;color:#cfe0f5}
+.hero .big{font-size:22px;font-weight:bold;margin:4px 0}
+.hero .sub{font-size:13px;color:#e6eefb;line-height:1.7}
+.hero .warn{margin-top:8px;background:#fef3c7;color:#7c2d12;border-radius:6px;padding:7px 10px;font-size:13px}
+.nums{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:13px}
+.nums b{font-size:15px}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.plus{color:#166534}.minus{color:#b91c1c}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:13px;color:#374151}
+.bar label{flex-direction:row;align-items:center;gap:6px;font-size:13px;color:#374151}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px}
+.vs .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;text-align:center}
+.vs .box .k{font-size:12px;color:#6b7280}
+.vs .box .v{font-size:19px;font-weight:bold;margin-top:2px}
+.vs .ne{font-size:22px;color:#6b7280}
+table.t2{min-width:0;font-size:14px}
+table.t2 td,table.t2 th{white-space:normal}
+tr.sub td{background:#f9fafb;font-weight:bold}
+tr.total td{background:#eef4fb;font-weight:bold;border-top:2px solid #1f3a5f}
+tr.open td{background:#fffdf5}
+tr.ind td:first-child{padding-left:28px;color:#4b5563}
+.legend{font-size:12px;color:#4b5563;margin-top:8px;line-height:1.7}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ok-line{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:14px}
+.pair td.cand{font-size:12px;color:#1d4ed8}
+.pair td.none{font-size:12px;color:#92400e;font-weight:bold}
+.hint{background:#eef4fb;border:1px solid #c9dcf2;color:#1f3a5f;font-size:13px;padding:8px 10px;border-radius:6px;margin-bottom:10px}
+/* 캡처 · 화면 공유용: 금액 · 거래처 · 이메일 가리기 — 화면에서만 가린다(저장된 값은 그대로) */
+body.mask .mny, body.mask .memo-t, body.mask #who{background:#111;color:transparent!important;border-radius:3px;user-select:none;-webkit-user-select:none}
+body.mask .hero .big{color:transparent!important;background:#111;border-radius:4px;display:inline-block}
+#maskbtn[aria-pressed=true]{background:#b91c1c!important}
+@media (max-width:800px){ .vs{grid-template-columns:1fr} .vs .ne{text-align:center} .two{grid-template-columns:1fr} }

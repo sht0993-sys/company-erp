@@ -188,7 +188,7 @@
   </div>
 
   <div class="side-summary">
-    <div class="row"><span><span class="dot dot-done"></span>완성</span><b>9</b></div>
+    <div class="row"><span><span class="dot dot-done"></span>완성</span><b>13</b></div>
     <div class="row"><span><span class="dot dot-progress"></span>진행중</span><b>0</b></div>
     <div class="row"><span><span class="dot dot-empty"></span>미완성</span><b>45</b></div>
   </div>
@@ -204,7 +204,7 @@
   <nav class="side-nav">
     <span class="side-label">전체 분류</span>
     <a class="side-cat" href="erp-approvals.html" style="text-decoration:none;">⓪ 전사 (전자결재 · 메신저) <span class="frac">2/2</span></a>
-    <div class="side-cat">① 돈 <span class="frac">0/10</span></div>
+    <div class="side-cat">① 돈 <span class="frac">4/14</span></div>
     <div class="side-cat">② 일 <span class="frac">1/11</span></div>
     <div class="side-cat">③ 물건 <span class="frac">0/8</span></div>
     <div class="side-cat">④ 사람 <span class="frac">2/7</span></div>
@@ -256,7 +256,7 @@
     <div class="hero-left">
       <h2>📖 ERP 지도</h2>
       <div class="sub">완성된 설계도가 아니라, 일주일에 한 칸씩 채워가는 판입니다.</div>
-      <div class="hero-progress-num">완성 <span>9</span> / 54</div>
+      <div class="hero-progress-num">완성 <span>13</span> / 58</div>
       <div class="hero-bar-track"><div class="hero-bar-fill" style="width:12%"></div></div>
       <div class="hero-note">칸이 비어 있는 것은 실패가 아니라 순서입니다.</div>
       <div class="hero-this-week">
@@ -294,9 +294,33 @@
   <section class="cat">
     <div class="cat-header">
       <div><h3>① 돈</h3><div class="sub">자금 · 매출 · 미수금 — 대표 · 경리 담당이 본다</div></div>
-      <div class="cat-count">0 / 10</div>
+      <div class="cat-count">4 / 14</div>
     </div>
     <div class="tile-grid">
+      <a class="tile is-done" data-id="grid-1-receivable" href="erp-recv.html">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">미수금 (세금계산서와 입금 짝짓기)</div>
+        <div class="tile-loc">대표만 · 짝은 사람이 고름 · 약속일 · 수파베이스 잠금</div>
+        <div class="tile-badges"><span class="badge badge-high">상·보안</span><span class="badge badge-human">사람</span></div>
+      </a>
+      <a class="tile is-done" data-id="grid-1-bank-sales" href="erp-bank.html">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">통장·매출 보기 (남았나 모자랐나)</div>
+        <div class="tile-loc">대표만 · 통장 증감 vs 손익 · 못 받은 돈 나란히 · 수파베이스 잠금</div>
+        <div class="tile-badges"><span class="badge badge-high">상·보안</span><span class="badge badge-human">사람</span></div>
+      </a>
+      <a class="tile is-done" data-id="grid-1-month-pnl" href="erp-pnl.html">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">월 손익 (통장 증감과 맞추기)</div>
+        <div class="tile-loc">대표만 · 장부 규칙으로 센 남은 돈 · 수파베이스 잠금</div>
+        <div class="tile-badges"><span class="badge badge-high">상·보안</span><span class="badge badge-human">사람</span></div>
+      </a>
+      <a class="tile is-done" data-id="grid-1-txn-box" href="erp-txn.html">
+        <div class="tile-top"><div class="tile-status"><span class="status-dot done"></span></div></div>
+        <div class="tile-name strong">거래 분류함 (통장 거래 → 내 분류)</div>
+        <div class="tile-loc">대표만 열람 · 통장 거래 → 내 분류 · 수파베이스 잠금</div>
+        <div class="tile-badges"><span class="badge badge-high">상·보안</span><span class="badge badge-human">사람</span></div>
+      </a>
       <div class="tile">
         <div class="tile-top"><div class="tile-status"><span class="status-dot"></span></div><span class="order-num">2</span></div>
         <div class="tile-name strong">미수금 리스트 (업체별 약속일)</div>

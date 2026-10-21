@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>통장·매출 보기 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<link rel="stylesheet" href="erp-money.css">
+</head>
+<body data-screen="bank">
+<header>
+  <h1>🏦 통장·매출 보기</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 금액 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-txn.html">거래 분류함</a><a href="erp-bank.html" class="on">통장·매출 보기</a><a href="erp-pnl.html">월 손익</a><a href="erp-recv.html">미수금</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">통장 거래는 <b>대표 계정</b>만 볼 수 있습니다. 재무 · 인사 · 일반 직원은 0줄입니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <section class="card" id="denied" hidden>
+    <h2>돈 장부를 볼 권한이 없습니다</h2>
+    <div class="note">통장·매출 보기는 대표만 봅니다.</div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="bar"><label>월 <select id="fMonth"></select></label><span id="count" style="color:#6b7280"></span><button class="ghost" id="reload" type="button" style="margin-left:auto">새로고침</button></div>
+
+    <section class="hero" id="hero"></section>
+
+    <section class="card">
+      <h2>같은 달, 두 숫자 — 통장은 얼마, 손익은 얼마</h2>
+      <div class="vs" id="vs"></div>
+      <div class="wrap"><table class="t2" id="why"></table></div>
+      <div class="legend">통장 증감 = 남은 돈 + 손익 아님 + 미분류. 차이는 분류 하나에서 나옵니다. 「손익 아님」은 번 것도 쓴 것도 아닌 돈(보증금 · 카드정산 · 대출원금)이고, 「미분류」는 아직 정하지 않은 돈입니다.</div>
+    </section>
+
+    <div class="two">
+      <section class="card">
+        <h2>나간 돈 — 분류별</h2>
+        <div class="wrap"><table class="t2" id="outT"></table></div>
+      </section>
+      <section class="card">
+        <h2>매출 보기 — 판 것</h2>
+        <div class="wrap"><table class="t2" id="salesT"></table></div>
+        <div class="legend">취소가 되돌아온 돈은 매출이 아닙니다(같은 분류 안에서 서로 지워집니다).</div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>나간 것처럼 보이지만 나간 게 아닌 돈 · 들어온 것처럼 보이지만 매출이 아닌 돈</h2>
+      <div class="wrap"><table class="t2" id="noT"></table></div>
+      <div class="legend">보증금은 돌려받을 돈(자산), 카드정산은 이미 판 달에 셈한 돈입니다. 클로브의 자동 분류가 이 둘을 「세금과공과」 「매출」로 찍어 놓은 일이 있어, 내 분류로 따로 나누어 둡니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>미분류 — 아직 정하지 않은 돈</h2>
+      <div id="openSum" style="margin-bottom:8px;font-size:14px"></div>
+      <div class="wrap"><table class="t2" id="openT"></table></div>
+      <div class="legend">지우지 않고 보이게 둡니다. 「거래 분류함」에서 내 분류를 정하면 여기서 빠집니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>⏳ 못 받은 돈 — 나란히만</h2>
+      <div class="hint">세금계산서 파일(<b>hanbit_tax_invoice_2026.json</b> — 연습용)을 고르면, 세금계산서와 통장 입금을 <b>나란히만</b> 놓습니다. 자동으로 짝짓지 않습니다. 이름이 조금씩 달라서(「(주)삼정정밀」 ↔ 「삼정정밀」) 자동으로 이으면 틀립니다. 「같은 금액의 입금」은 짝이 아니라 <b>눈으로 볼 때 참고하는 단서</b>일 뿐입니다.</div>
+      <div class="bar"><label>세금계산서 파일 <input type="file" id="taxFile" accept=".json,application/json"></label><span class="err" id="taxErr"></span><a href="erp-recv.html" style="margin-left:auto">직접 짝지어 보려면 ⏳ 미수금 →</a></div>
+      <div id="pair"></div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-money.js"></script>
+</body>
+</html>

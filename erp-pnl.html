@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>월 손익 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<link rel="stylesheet" href="erp-money.css">
+</head>
+<body data-screen="pnl">
+<header>
+  <h1>📊 월 손익</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 금액 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-txn.html">거래 분류함</a><a href="erp-bank.html">통장·매출 보기</a><a href="erp-pnl.html" class="on">월 손익</a><a href="erp-recv.html">미수금</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">월 손익은 통장 거래로 계산해서, <b>대표 계정</b>만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <section class="card" id="denied" hidden>
+    <h2>돈 장부를 볼 권한이 없습니다</h2>
+    <div class="note">월 손익은 대표만 봅니다.</div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="bar"><label>월 <select id="fMonth"></select></label><span id="count" style="color:#6b7280"></span><button class="ghost" id="reload" type="button" style="margin-left:auto">새로고침</button></div>
+
+    <section class="hero" id="hero"></section>
+
+    <section class="card">
+      <h2>장부 규칙으로 센 남은 돈</h2>
+      <div class="wrap"><table class="t2" id="rule"></table></div>
+      <div class="legend"><b>판 것</b> = 「판 것」 분류의 입금 − 같은 분류의 출금(환불). <b>쓴 것</b> = 「쓴 것」 분류의 출금 − 같은 분류의 입금(환급). <b>손익 아님</b>과 <b>미분류</b>는 빠집니다 — 미분류가 많으면 남은 돈은 아직 믿지 않습니다.</div>
+    </section>
+
+    <section class="card">
+      <h2>통장 증감과 맞추기</h2>
+      <div class="wrap"><table class="t2" id="recon"></table></div>
+      <div id="reconLine" class="ok-line"></div>
+      <div id="viewLine" class="ok-line"></div>
+    </section>
+
+    <section class="card">
+      <h2>월별 비교</h2>
+      <div class="wrap"><table class="t2" id="monthsT"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>여기까지 오면 — 세 줄</h2>
+      <div class="wrap"><table class="t2" id="three"></table></div>
+      <div class="legend">이 셋이 관리회계의 시작입니다. 세무사에게 묻지 않고 이번 달에 볼 수 있습니다. 신고 · 세무 판단은 세무사의 층입니다.</div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-money.js"></script>
+</body>
+</html>

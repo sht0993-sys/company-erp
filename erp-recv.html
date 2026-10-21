@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>미수금 · (주)성환공구</title>
+<link rel="stylesheet" href="erp-ledger.css">
+<link rel="stylesheet" href="erp-money.css">
+<style>
+  td input[type=date], td input[type=text]{padding:4px 6px;font-size:13px}
+  td input.memo-in{width:150px}
+  td.act{white-space:nowrap}
+  td.act button{padding:4px 9px;font-size:12px}
+  button.danger{background:#fee2e2;color:#b91c1c}
+  .pick{border:2px solid #1f3a5f}
+  tr.cand-same td{background:#eef4fb}
+  .amt-in{width:120px;text-align:right}
+  .msg{font-size:13px;min-height:18px;margin-top:6px}
+  .saved{color:#166534;font-size:13px;font-weight:bold;margin-left:auto;margin-right:10px}
+  body.mask input.memo-in, body.mask .amt-in{color:transparent;background:#111;-webkit-text-fill-color:transparent;caret-color:transparent}
+  body.mask #saved{visibility:hidden}
+</style>
+</head>
+<body data-screen="recv">
+<header>
+  <h1>⏳ 미수금</h1>
+  <div class="r"><span id="who"></span><button class="ghost" id="maskbtn" type="button" hidden aria-pressed="false">캡처용: 금액 가리기</button><button class="ghost" id="logout" type="button" hidden>로그아웃</button><a href="erp-txn.html">거래 분류함</a><a href="erp-bank.html">통장·매출 보기</a><a href="erp-pnl.html">월 손익</a><a href="erp-recv.html" class="on">미수금</a><a href="erp-map.html">← ERP 지도로</a></div>
+</header>
+
+<main>
+  <section class="card" id="login">
+    <h2>로그인</h2>
+    <div class="note">미수금은 통장 입금과 짝지어서 계산해서, <b>대표 계정</b>만 볼 수 있습니다.</div>
+    <form id="lf">
+      <label>이메일<input name="email" type="email" autocomplete="username"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password"></label>
+      <div><button type="submit" id="lbtn">로그인</button> <span class="err" id="lerr"></span></div>
+    </form>
+  </section>
+
+  <section class="card" id="denied" hidden>
+    <h2>미수금 장부를 볼 권한이 없습니다</h2>
+    <div class="note">미수금은 대표만 봅니다.</div>
+  </section>
+
+  <div id="app" hidden>
+    <section class="hero" id="hero">불러오는 중…</section>
+
+    <section class="card">
+      <h2>거래처별 미수금</h2>
+      <div class="wrap"><table class="t2" id="byClient"></table></div>
+      <div class="legend">이름이 조금씩 달라도(「(주)삼정정밀」 ↔ 「삼정정밀 주식회사」) <b>사업자번호 끝 4자리가 같으면</b> 한 거래처로 묶어서 셉니다. 경과일은 가장 오래된 못 받은 계산서의 발행일부터입니다.</div>
+    </section>
+
+    <section class="card pick" id="pickCard" hidden>
+      <h2>입금과 짝짓기 — <span id="pickTitle"></span></h2>
+      <div id="pickBody"></div>
+      <div class="msg" id="pickMsg"></div>
+      <div style="margin-top:8px"><button class="ghost" type="button" id="pickClose">닫기</button></div>
+    </section>
+
+    <section class="card">
+      <div class="tools"><span id="count">불러오는 중…</span><span class="saved" id="saved"></span><button class="ghost" id="reload" type="button">새로고침</button></div>
+      <div class="bar">
+        <label><input type="checkbox" id="fOpen" checked> 못 받은 것만 보기</label>
+        <label>월 <select id="fMonth"><option value="">전체</option></select></label>
+        <label><input type="search" id="fQ" placeholder="거래처 검색"></label>
+      </div>
+      <div class="wrap">
+        <table>
+          <thead><tr><th>발행일</th><th>거래처</th><th class="num">합계금액</th><th class="num">받은 돈</th><th class="num">남은 돈</th><th>상태</th><th class="num">경과일</th><th>약속일</th><th>메모</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <b>짝짓기는 사람이 합니다.</b> 자동으로 이으면 이름이 달라서 틀립니다(바오밥은 100건 중 3~4건만 맞았습니다). 「짝짓기」를 누르면 통장 입금을 나란히 보여 주고, 같은 금액은 단서로 먼저 올려 줍니다.<br>
+        <b>약속일</b>은 업체가 돈을 주기로 한 날입니다. 모르면 비워 두세요. 지났는데 못 받았으면 <span class="badge b-red">약속일 지남</span>이 붙습니다.<br>
+        세금계산서의 금액 · 날짜 · 거래처는 원본이 정본이라 여기서 고칠 수 없습니다. 세금계산서를 넣고 지우는 것은 클로드가 합니다.
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="erp-recv.js"></script>
+</body>
+</html>
