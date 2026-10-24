@@ -81,6 +81,7 @@
       from += step;
     }
     txns = all;
+    if (SCREEN === "bank") await loadAccounts();
     var p = await sb.from("v_month_pnl").select("*");
     pnlView = p.data || [];
     var cur = $("fMonth").value, ms = allMonths();
@@ -88,6 +89,18 @@
     $("fMonth").value = ms.indexOf(cur) >= 0 ? cur : (ms[ms.length - 1] || "");
     $("count").textContent = "거래 " + txns.length + "건";
     render();
+  }
+
+  // 통장 목록 — 별명 · 부서 · 은행 · 끝 4자리 (전체 번호 · 잔액은 장부에 없다)
+  async function loadAccounts(){
+    var a = await sb.from("bank_account").select("id,nickname,dept,bank,last4").order("id", {ascending:true});
+    if (a.error){ $("acctT").innerHTML = '<tbody><tr><td class="empty">통장 목록을 불러오지 못했습니다: ' + esc(a.error.message) + '</td></tr></tbody>'; return; }
+    var cnt = {}; txns.forEach(function(t){ cnt[t.account_id] = (cnt[t.account_id] || 0) + 1; });
+    var rows = (a.data || []).map(function(x){
+      return '<tr><td>'+esc(x.nickname)+'</td><td>'+(x.dept ? esc(x.dept) : '<span style="color:#6b7280">—</span>')+'</td><td>'+esc(x.bank)+'</td><td>끝 '+esc(x.last4)+'</td><td class="num">'+(cnt[x.id] || 0).toLocaleString("ko-KR")+'건</td></tr>';
+    }).join("");
+    $("acctT").innerHTML = '<thead><tr><th>별명</th><th>부서</th><th>은행</th><th>계좌번호</th><th class="num">거래</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="5" class="empty">등록된 통장이 없습니다.</td></tr>') + '</tbody>';
   }
 
   function render(){
